@@ -89,10 +89,10 @@ export default function Sidebar({ activeView, onViewChange, threatLevel = "ELEVA
         {!collapsed && (
           <div className="flex flex-col overflow-hidden">
             <span className="text-sm font-bold tracking-wider text-primary text-glow-cyan">
-              NEXUS
+              A.K.A.S.H.I.C.
             </span>
-            <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-              Cyber Intel
+            <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">
+              Cyber Forensics
             </span>
           </div>
         )}

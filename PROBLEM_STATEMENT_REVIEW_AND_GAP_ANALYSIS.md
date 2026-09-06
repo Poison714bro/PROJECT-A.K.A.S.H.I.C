@@ -1,4 +1,4 @@
-# NEXUS CYBER INTEL PLATFORM — PROBLEM STATEMENT COMPLIANCE & GAP ANALYSIS
+# PROJECT A.K.A.S.H.I.C. — PROBLEM STATEMENT COMPLIANCE & GAP ANALYSIS
 ═══════════════════════════════════════════════════════════════════════════════
 Document Title : Track 3 Problem Statement Comprehensive Review & Gap Analysis
 Target Domain  : Anti-Narcotics Task Forces & Digital Cyber Crime Investigation
@@ -126,7 +126,7 @@ To take the platform from **92% to 100% full problem statement coverage**, here 
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                       NEXUS PLATFORM UPGRADE ROADMAP                        │
+│                 PROJECT A.K.A.S.H.I.C. PLATFORM UPGRADE ROADMAP             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  [PHASE 1] NARCOTICS NLP & PRECURSOR SLANG ENGINE                           │

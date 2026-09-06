@@ -52,7 +52,7 @@ export class McpService {
 
       this.client = new Client(
         {
-          name: 'nexus-backend-client',
+          name: 'akashic-backend-client',
           version: '1.0.0',
         },
         {

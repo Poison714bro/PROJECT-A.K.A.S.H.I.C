@@ -54,8 +54,8 @@ export default function LoginView() {
               <Activity className="absolute -bottom-1 -right-4 h-8 w-8 text-[#1d2a44] opacity-50" />
             </div>
             
-            <h1 className="bg-gradient-to-b from-slate-200 to-slate-500 bg-clip-text text-center text-3xl font-black tracking-[0.15em] text-transparent">
-              NEXUS
+            <h1 className="bg-gradient-to-b from-slate-200 to-slate-500 bg-clip-text text-center text-2xl sm:text-3xl font-black tracking-[0.15em] text-transparent">
+              A.K.A.S.H.I.C.
             </h1>
             <p className="mt-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.15em] text-cyan-500">
               <Cpu className="h-3.5 w-3.5" />

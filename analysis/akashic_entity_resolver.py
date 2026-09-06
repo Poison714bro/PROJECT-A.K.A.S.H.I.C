@@ -28,7 +28,8 @@ except ImportError:
     DuplicateDetector = None
     EntityMerger = None
 
-from analysis.semantica_graph_service import SemanticaGraphService
+from analysis.akashic_graph_service import SemanticaGraphService as AkashicGraphService
+SemanticaGraphService = AkashicGraphService
 
 
 class SemanticaEntityResolver:

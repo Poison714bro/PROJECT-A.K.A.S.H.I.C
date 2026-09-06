@@ -14,8 +14,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Text content is required for ingestion.' }, { status: 400 });
     }
 
-    // Execute Python Semantica Ingestor
-    const pythonScript = path.join(process.cwd(), 'ingestion', 'semantica_pipeline.py');
+    // Execute Python Akashic Ingestor
+    const pythonScript = path.join(process.cwd(), 'ingestion', 'akashic_pipeline.py');
     const winPython = path.join(process.cwd(), 'darknet-intel-mcp', 'venv', 'Scripts', 'python.exe');
     const posixPython = path.join(process.cwd(), 'darknet-intel-mcp', 'venv', 'bin', 'python');
     const pythonBin = fs.existsSync(winPython) ? winPython : fs.existsSync(posixPython) ? posixPython : 'python';
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     // Temporary inline python invocation for custom text
     const inlineCode = `
 import sys, json
-from ingestion.semantica_pipeline import SemanticaIngestionPipeline
+from ingestion.akashic_pipeline import SemanticaIngestionPipeline
 
 pipeline = SemanticaIngestionPipeline()
 text = ${JSON.stringify(text)}

@@ -12,7 +12,7 @@ router.get('/', (req: Request, res: Response) => {
 
   const healthData = {
     status: 'HEALTHY',
-    service: 'nexus-backend-service',
+    service: 'akashic-backend-service',
     version: '1.0.0',
     uptimeSeconds: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),

@@ -7,8 +7,8 @@ const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "NEXUS | Cyber Intelligence Platform",
-  description: "Law Enforcement Cyber Intelligence Platform for detecting, tracking, and analyzing illicit drug sales across darknet marketplaces and encrypted platforms.",
+  title: "A.K.A.S.H.I.C. | Cyber Intelligence & Forensic Platform",
+  description: "Autonomous Knowledge-base for Anti-narcotics, Syndicate Hotspots & Inter-agency Cyber-forensics (Project A.K.A.S.H.I.C.).",
 };
 
 export default function RootLayout({

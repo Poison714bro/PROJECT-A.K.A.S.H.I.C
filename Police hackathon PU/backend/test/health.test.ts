@@ -9,7 +9,7 @@ describe('GET /api/v1/health', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.status).toBe('HEALTHY');
-    expect(res.body.data.service).toBe('nexus-backend-service');
+    expect(res.body.data.service).toBe('akashic-backend-service');
     expect(res.body.data.dataStore.entitiesCount).toBeGreaterThan(0);
   });
 });

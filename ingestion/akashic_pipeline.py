@@ -28,7 +28,8 @@ except ImportError:
     FileIngestor = None
 
 from analysis.extraction.ner import CybercrimeNER
-from analysis.semantica_graph_service import SemanticaGraphService
+from analysis.akashic_graph_service import SemanticaGraphService as AkashicGraphService
+SemanticaGraphService = AkashicGraphService
 
 
 class SemanticaIngestionPipeline:

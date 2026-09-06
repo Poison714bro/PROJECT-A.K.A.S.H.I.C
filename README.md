@@ -1,6 +1,7 @@
-# 🛡️ NEXUS — AI-Powered Darknet Cybercrime & Forensic Intelligence Platform
+# 🌌 PROJECT A.K.A.S.H.I.C. (आकाशिक) — AI-Powered Darknet Cybercrime & Forensic Intelligence Platform
 
-> **Advanced Deterministic Context Graph Engine, Cross-Source Entity Resolution, GPU Geospatial Supply Chain Corridors, and Tamper-Evident Forensic Dossier Automation.**  
+> **A.K.A.S.H.I.C. (Autonomous Knowledge-base for Anti-narcotics, Syndicate Hotspots & Inter-agency Cyber-forensics)**  
+> *Deterministic Context Graph Engine, Cross-Source Entity Resolution, GPU Geospatial Supply Chain Corridors, and Tamper-Evident Forensic Dossier Automation.*  
 > *Developed for Law Enforcement, Anti-Narcotics Task Forces, and Intelligence Agencies.*
 
 ---
@@ -18,17 +19,18 @@
 ## 📑 Table of Contents
 
 - [1. Executive Overview & Problem Statement](#1-executive-overview--problem-statement)
-- [2. System Architecture & Intelligence Workflow](#2-system-architecture--intelligence-workflow)
+- [2. System Architecture & Operational Workflow](#2-system-architecture--operational-workflow)
   - [2.1 End-to-End Operational Pipeline Diagram](#21-end-to-end-operational-pipeline-diagram)
-  - [2.2 Stage 1: Intake of Intelligence](#22-stage-1-intake-of-intelligence)
-  - [2.3 Stage 2: OSINT + Crypto Attribution Layer](#23-stage-2-osint--crypto-attribution-layer)
-  - [2.4 Stage 3: AI Layer & Prediction Models](#24-stage-3-ai-layer--prediction-models)
-  - [2.5 Stage 4: Investigation Canvas / Hub](#25-stage-4-investigation-canvas--hub)
+  - [2.2 Data Sources & Dual-Channel Pipeline Ingestion](#22-data-sources--dual-channel-pipeline-ingestion)
+  - [2.3 Ingestion & Extraction Layer (NER, Regex & Event Mining)](#23-ingestion--extraction-layer-ner-regex--event-mining)
+  - [2.4 Analysis Engine: Graph Builder, Centrality & Louvain Syndicates](#24-analysis-engine-graph-builder-centrality--louvain-syndicates)
+  - [2.5 Storage Layer (Prisma / SQLite Relational Models)](#25-storage-layer-prisma--sqlite-relational-models)
+  - [2.6 Real-Time Operator Interface (Next.js 14 & Deck.gl 9)](#26-real-time-operator-interface-nextjs-14--deckgl-9)
 - [3. Core Operational Modules](#3-core-operational-modules)
   - [3.1 Executive Command Center](#31-executive-command-center)
   - [3.2 Entity Resolution Engine & Syndicate Matrix](#32-entity-resolution-engine--syndicate-matrix)
   - [3.3 Evidence Graph & Neural Physics Simulation](#33-evidence-graph--neural-physics-simulation)
-  - [3.4 Geospatial Supply Chain Corridors (Leaflet.js & Deck.gl 9)](#34-geospatial-supply-chain-corridors-leafletjs--deckgl-9)
+  - [3.4 Geospatial Supply Chain Corridors (Deck.gl 9)](#34-geospatial-supply-chain-corridors-deckgl-9)
   - [3.5 Forensic Case Management & Tamper-Evident Ledger](#35-forensic-case-management--tamper-evident-ledger)
   - [3.6 Pattern of Life & Darknet Triplet Mining Studio](#36-pattern-of-life--darknet-triplet-mining-studio)
 - [4. Technology Stack](#4-technology-stack)
@@ -50,127 +52,156 @@ Modern cyber-narcotics cartels and darknet threat syndicates operate across dist
 - **Conflicting Source Intelligence**: Wiretaps, informant testimonies, and intercepted comms frequently contradict each other.
 - **Court Admissibility Challenges**: Raw intelligence must be transformed into tamper-evident, Section 65B-compliant forensic dossier packages with cryptographic chain of custody.
 
-### 🎯 What NEXUS Solves
-**NEXUS** is an end-to-end intelligence operating system combining a deterministic **Semantica ContextGraph** engine with **GPU-accelerated geospatial tracking**, **heuristic link prediction**, **credibility-weighted contradiction arbitration**, and **SHA-256 audit chaining** to empower law enforcement investigators from initial darknet scrapings to court conviction.
+### 🎯 What A.K.A.S.H.I.C. Solves
+**PROJECT A.K.A.S.H.I.C.** is an end-to-end intelligence operating system combining a deterministic **Semantica ContextGraph** engine with **GPU-accelerated geospatial tracking**, **heuristic link prediction**, **credibility-weighted contradiction arbitration**, and **SHA-256 audit chaining** to empower law enforcement investigators from initial darknet scrapings to court conviction.
 
 ---
 
-## 2. System Architecture & Intelligence Workflow
+## 2. System Architecture & Operational Workflow
 
-The NEXUS operational workflow transforms raw, unstructured, multi-source darknet feeds and encrypted communications into correlated spatial intelligence, predictive transit models, and court-admissible dossiers.
+The A.K.A.S.H.I.C. platform operates across a five-tier architecture: **Data Sources**, **Ingestion & Extraction**, **Analysis Engine (Python 3.13)**, **Storage (Prisma/SQLite)**, and the **Frontend Operator Interface (Next.js 14)**.
 
 ### 2.1 End-to-End Operational Pipeline Diagram
 
 ```mermaid
 flowchart TB
-    %% AI Layer & Prediction Models (Top-Left)
-    subgraph AILayer ["AI Layer & Prediction Models"]
-        direction TB
-        NLP["NLP Entity Recognition /<br/>Drug Type Classifier"]
-        TimeAnalysis["Timestamp Series Analysis<br/>10-Year Historical Data"]
-        VisualMeta["Visual Metadata Object"]
-        RouteModel["Route Availability<br/>Prediction Model"]
-
-        NLP -->|"Hex Color Tagging Layer"| VisualMeta
-        NLP -->|"Geo-Tagged Nodes"| VisualMeta
-        TimeAnalysis -->|"Hotspot Zones"| RouteModel
-        TimeAnalysis -.->|"Historical Trends"| RouteModel
-    end
-
-    %% Intake of Intelligence (Top-Center)
-    subgraph IntakeIntelligence ["Intake of Intelligence"]
-        direction TB
-        Feeds["Darknet Onion Feeds /<br/>Telegram Encrypted Logs"]
-        Processor["Data Processor"]
-        Feeds -->|"Scrape & Normalize"| Processor
-    end
-
-    %% OSINT + Crypto Layer (Middle-Tier)
-    subgraph OSINTCryptoLayer ["OSINT + Crypto Layer"]
-        direction TB
-        subgraph IPTrack ["Network & IP Resolution"]
-            TorDB["Tor Exit Node DBs / IP<br/>Whois Data Lookups"]
-            Resolver["Public Resolver Service"]
-            TorDB -->|"IP-Resolve"| Resolver
-        end
-
-        subgraph CryptoTrack ["Blockchain & Financial Attribution"]
-            WalletCluster["Wallet Graph Clustering<br/>from Blockchain APIs"]
-            GeoHints["Inferred Geo-Hints"]
-            WalletCluster -->|"Wallet ID Hash Match"| GeoHints
-        end
-    end
-
-    %% Investigation Canvas / Hub (Bottom-Tier)
-    subgraph InvestigationHub ["Investigation Canvas / Hub"]
+    %% 1. Frontend Subgraph (Next.js 14)
+    subgraph Frontend ["Frontend (Next.js 14)"]
         direction LR
-        LeafletMap[("Interactive Leaflet.js Map<br/>(Spatial Coordinate Hub)")]
-        AIDigests["Time-Bounded AI Digests<br/>LLM Summarization Output"]
+        DashboardView["Dashboard View"]
+        BackendAPI["Backend API /api/v1/"]
+        EvidenceGraphView["Evidence Graph View"]
+        DeckglMap["Deck.gl Map"]
+        KanbanManager["Kanban Manager"]
+        AuditLedger["Audit Ledger"]
+
+        DashboardView <-->|"API Calls"| BackendAPI
+        BackendAPI --> EvidenceGraphView
+        BackendAPI --> KanbanManager
+        EvidenceGraphView <-->|"Interactive Data"| DeckglMap
+        KanbanManager -->|"Case Tracking"| AuditLedger
     end
 
-    %% Cross-layer Directed Flows
-    Processor -->|"User Handles Extracted"| OSINTCryptoLayer
-    GeoHints -->|"Lat/Lng"| LeafletMap
-    VisualMeta -.->|"Color Tagging & Schema"| LeafletMap
-    RouteModel -.->|"Predicted Supply Corridors"| LeafletMap
-    VisualMeta -.->|"Structured Intelligence"| AIDigests
-    RouteModel -.->|"Corridor Telemetry"| AIDigests
+    %% 2. Data Sources Subgraph
+    subgraph DataSources ["Data Sources"]
+        direction TB
+        DarknetFeeds["Darknet / Telegram Feeds"]
+        BlockchainAPIs["Blockchain APIs"]
+        WalletClustering["Wallet Graph Clustering"]
+        Pipeline["akashic_pipeline.py<br/>(semantica_pipeline.py)"]
 
-    %% Node & Subgraph Styling
-    style Feeds fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#ffffff
-    style Processor fill:#0284c7,stroke:#38bdf8,stroke-width:2px,color:#ffffff
-    style AILayer fill:#181825,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4
-    style OSINTCryptoLayer fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
-    style InvestigationHub fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4
-    style LeafletMap fill:#111827,stroke:#38bdf8,stroke-width:2px,color:#ffffff
-    style AIDigests fill:#111827,stroke:#c084fc,stroke-width:2px,color:#ffffff
+        DarknetFeeds -->|"Raw Text"| Pipeline
+        BlockchainAPIs -->|"Wallet Data"| WalletClustering
+    end
+
+    %% 3. Ingestion & Extraction Subgraph
+    subgraph IngestionExtraction ["Ingestion & Extraction"]
+        direction TB
+        ExtractionLayer["Extraction Layer"]
+        Entities["Entities: Wallets, PGP, Names"]
+        Timestamps["Timestamps & Operations"]
+
+        ExtractionLayer -->|"NER / Regex"| Entities
+        ExtractionLayer -->|"Event Mining"| Timestamps
+    end
+
+    %% 4. Analysis Engine (Python 3.13) Subgraph
+    subgraph AnalysisEngine ["Analysis Engine (Python 3.13)"]
+        direction TB
+        KGBuilder["Knowledge Graph Builder"]
+        EdgeTypes["Edge Types: Shared IP, Co-Listed"]
+        CentralityCalc["Centrality Calc"]
+        KingpinIndex["Kingpin Index"]
+        LouvainModularity["Louvain Modularity"]
+        SyndicateGroups["Syndicate Groups"]
+        EntityResolution["Entity Resolution"]
+        MergedPersonas["Merged Master Personas"]
+
+        KGBuilder --> EdgeTypes
+        EdgeTypes --> CentralityCalc
+        CentralityCalc -->|"PageRank"| KingpinIndex
+        EdgeTypes --> LouvainModularity
+        LouvainModularity -->|"Clustering"| SyndicateGroups
+        LouvainModularity --> MergedPersonas
+        EntityResolution --> MergedPersonas
+    end
+
+    %% 5. Storage Subgraph (Prisma/SQLite)
+    subgraph Storage ["Storage (Prisma/SQLite)"]
+        direction TB
+        IntelEntity["IntelEntity Table"]
+        RawIngestLog["RawIngestLog"]
+        GraphEdge["GraphEdge Relations"]
+    end
+
+    %% Cross-Subsystem Interconnections
+    Pipeline -->|"Normalized JSON"| ExtractionLayer
+    Pipeline --> KGBuilder
+    WalletClustering --> KGBuilder
+    Entities --> EdgeTypes
+    MergedPersonas --> IntelEntity
+    Storage -.->|"API Feeder"| BackendAPI
+
+    %% Subgraph and Node Styles
+    style Frontend fill:#111827,stroke:#38bdf8,stroke-width:2px,color:#f8fafc
+    style DataSources fill:#111827,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
+    style IngestionExtraction fill:#111827,stroke:#a855f7,stroke-width:2px,color:#f8fafc
+    style AnalysisEngine fill:#111827,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+    style Storage fill:#111827,stroke:#10b981,stroke-width:2px,color:#f8fafc
 ```
 
 ---
 
-### 2.2 Stage 1: Intake of Intelligence
-1. **Raw Multi-Source Ingestion**:
-   - **Darknet Onion Feeds**: Ingests vendor postings, escrow notes, product catalogs, and PGP signatures from Tor hidden services (`.onion`).
-   - **Telegram Encrypted Logs**: Ingests channel dumps, bot logs, and encrypted peer-to-peer chat extracts.
-2. **Scrape & Normalize (`Data Processor`)**:
-   - Strips transport markup, normalizes character encodings, and cleans raw text.
-   - Extracts key entities: **User Handles** (`@handle`, vendor aliases, forum screen names), burner emails, and session tokens.
-   - Dispatches parsed handles directly into the OSINT and Crypto attribution pipeline.
+### 2.2 Data Sources & Dual-Channel Pipeline Ingestion
+1. **Unstructured Communications & Posts**:
+   - **Darknet & Telegram Feeds**: Streams vendor listings, escrow chatter, and channel dumps as **Raw Text**.
+2. **On-Chain Financial Forensics**:
+   - **Blockchain APIs**: Streams **Wallet Data** across Bitcoin, Monero, and Ethereum nodes.
+   - **Wallet Graph Clustering**: Clusters co-spent inputs, change addresses, and mixer transactions, directly feeding clustered transaction subgraphs into the **Knowledge Graph Builder**.
+3. **Automated Pipeline (`akashic_pipeline.py` / `semantica_pipeline.py`)**:
+   - Ingests raw feeds, cleans transport noise, and produces standardized **Normalized JSON** dispatched to the **Extraction Layer** and **Knowledge Graph Builder**.
 
 ---
 
-### 2.3 Stage 2: OSINT + Crypto Attribution Layer
-1. **Network & IP Attribution**:
-   - **Tor Exit Node DBs & IP Whois Data Lookups**: Correlates network telemetry against historical Tor relay directories, known exit nodes, and ISP Autonomous System Numbers (ASNs).
-   - **IP-Resolve & Public Resolver Service**: Resolves cleared IP endpoints and server infrastructure through reverse-DNS and public resolver microservices.
-2. **Blockchain & Financial Clustering**:
-   - **Wallet Graph Clustering from Blockchain APIs**: Ingests transaction graphs for Bitcoin (BTC), Ethereum (ETH), and Monero (XMR) across public ledgers.
-   - **Wallet ID Hash Match**: Resolves co-spending inputs, change addresses, and exchange deposit addresses.
-   - **Inferred Geo-Hints (`Lat/Lng`)**: Derives probabilistic physical location hints from exchange KYC choke-points, IP-associated liquidity hops, and timezone-correlated transaction timing, emitting structured **`Lat/Lng` coordinates**.
+### 2.3 Ingestion & Extraction Layer (NER, Regex & Event Mining)
+1. **Extraction Layer**:
+   - Processes normalized payloads through dedicated cybercrime parsers:
+   - **NER / Regex**: Extracts high-value forensic IOCs into **Entities: Wallets, PGP, Names** (Bitcoin Bech32/P2PKH, XMR subaddresses, 40-char PGP fingerprints, Telegram `@handles`).
+   - **Event Mining**: Extracts temporal operational milestones into **Timestamps & Operations** (dispatch schedules, drop confirmations, vendor listing active windows).
 
 ---
 
-### 2.4 Stage 3: AI Layer & Prediction Models
-1. **NLP Entity Recognition & Drug Type Classifier**:
-   - Deep NLP categorization of illicit narcotics (Fentanyl, Methamphetamine, Heroin, MDMA, Precursor chemicals).
-   - **Hex Color Tagging Layer**: Assigns standardized forensic color codes (e.g., `#EF4444` for Opioids, `#3B82F6` for Stimulants, `#10B981` for Precursors).
-   - **Geo-Tagged Nodes**: Binds physical contraband seized or mentioned to geographic bounding boxes.
-   - **Visual Metadata Object**: Encapsulates entity attributes, risk scores, hex tags, and spatial anchors for frontend rendering.
-2. **Timestamp Series Analysis (10-Year Historical Data)**:
-   - Evaluates a decade of longitudinal seizure timestamps, darknet dispatch logs, and trafficking incidents.
-   - Computes dynamic **Hotspot Zones** based on temporal density and seasonal contraband spikes.
-3. **Route Availability Prediction Model**:
-   - Combines historical hotspot trendlines with real-time interdiction data to predict active trafficking routes and alternative smuggling corridors.
+### 2.4 Analysis Engine: Graph Builder, Centrality & Louvain Syndicates
+1. **Knowledge Graph Builder**:
+   - Constructs deterministic multi-target RDF ContextGraphs from pipeline feeds and binds extracted entities.
+2. **Edge Classification (`Edge Types: Shared IP, Co-Listed`)**:
+   - Resolves infrastructure ties including shared Tor exit relays, co-listed marketplace vendor accounts, and common cryptocurrency counter-parties.
+3. **Kingpin Index Identification**:
+   - **Centrality Calc** computes composite **Kingpin Index** ($0.5 \times \text{PageRank} + 0.5 \times \text{Betweenness Centrality}$) to differentiate kingpins from mid-level runners.
+4. **Criminal Syndicate Clustering**:
+   - **Louvain Modularity** partitions the graph into dense community clusters (**Syndicate Groups**).
+5. **Entity Resolution & Persona Merging**:
+   - Merges candidate personas with cryptographic collisions (shared PGP keys / wallets) and high Jaccard/Levenshtein text similarity into **Merged Master Personas**.
 
 ---
 
-### 2.5 Stage 4: Investigation Canvas / Hub
-1. **Interactive Leaflet.js Map**:
-   - Central spatial Common Operating Picture (COP).
-   - Ingests `Lat/Lng` coordinate streams from **Inferred Geo-Hints**, renders **Geo-Tagged Nodes**, and visualizes **Predicted Supply Corridors** with dynamic styling from the **Visual Metadata Object**.
-2. **Time-Bounded AI Digests / LLM Summarization Output**:
-   - Natural language intelligence summarization engine.
-   - Generates executive briefing notes, timeline chronologies, and target activity digests strictly bounded by investigator-selected timeframes.
+### 2.5 Storage Layer (Prisma / SQLite Relational Models)
+1. **Relational Schema Structure**:
+   - **`IntelEntity Table`**: Persists verified Master Personas, risk scores, aliases, and operational status.
+   - **`RawIngestLog`**: Complete audit trail of ingested posts, timestamps, source channels, and raw payloads.
+   - **`GraphEdge Relations`**: Persists relational links, co-conspiracy weights, and evidence references.
+
+---
+
+### 2.6 Real-Time Operator Interface (Next.js 14 & Deck.gl 9)
+1. **Executive Command Center (`Dashboard View`)**:
+   - Communicates bi-directionally via **API Calls** (`/api/v1/`) to stream real-time KPIs, threat feeds, and seizure statistics.
+2. **Tactical Investigation Hub**:
+   - **Evidence Graph View**: 60 FPS Canvas2D force-directed simulation visualizing network topologies and money laundering flow routes.
+   - **Deck.gl Map**: Hardware-accelerated 3D geospatial layer rendering transit arcs, seizure scatterplots, and supply chain heatmaps, synced with **Interactive Data** from the evidence graph.
+3. **Forensic Case Pipeline**:
+   - **Kanban Manager**: Drag-and-drop case tracking across investigative stages.
+   - **Audit Ledger**: Cryptographic SHA-256 Merkle chain providing court-admissible Section 65B audit trails for every investigative action.
 
 ---
 
@@ -299,10 +330,10 @@ PU-Hackathon/
 │   │   ├── duplicate_detector.py          # Persona candidate matching
 │   │   ├── entity_merger.py               # Master entity unification
 │   │   └── similarity.py                  # Jaccard & Levenshtein calculators
-│   ├── semantica_entity_resolver.py       # High-level Entity Resolution Service
-│   └── semantica_graph_service.py         # High-level ContextGraph Manager
+│   ├── akashic_entity_resolver.py         # High-level Entity Resolution Service
+│   └── akashic_graph_service.py           # High-level ContextGraph Manager
 ├── ingestion/                             # Data Ingestion Pipelines
-│   └── semantica_pipeline.py              # Raw feed parsing and GraphBuilder feeder
+│   └── akashic_pipeline.py                # Raw feed parsing and GraphBuilder feeder
 ├── src/                                   # Next.js 14 Frontend Application
 │   ├── app/                               # Next.js App Router & API Endpoints
 │   │   ├── api/v1/                        # RESTful Typed API Route Handlers
@@ -312,7 +343,7 @@ PU-Hackathon/
 │   │   │   ├── intelligence/              # Conflicts, audit, dossier, triplets
 │   │   │   ├── investigations/            # Kanban case cards
 │   │   │   ├── map/                       # Geospatial pins & routes
-│   │   │   ├── network/default/           # Live Python 3.13 Semantica graph endpoint
+│   │   │   ├── network/default/           # Live Python 3.13 A.K.A.S.H.I.C. graph endpoint
 │   │   │   └── search/                    # Global omni-search
 │   │   ├── globals.css                    # TailwindCSS theme tokens
 │   │   ├── layout.tsx                     # Root application layout
@@ -338,8 +369,8 @@ PU-Hackathon/
 │   │   └── store.ts                       # Zustand global application store
 │   └── test/                              # Vitest Test Setup
 │       └── setup.ts                       # Jest-DOM matchers initialization
-├── test_semantica_engine.py               # Unit Test Suite for Semantica Graph Engine
-├── test_semantica_integration.py          # 10-Step Forensic Integration Test Suite
+├── test_akashic_engine.py                 # Unit Test Suite for A.K.A.S.H.I.C. Graph Engine
+├── test_akashic_integration.py            # 10-Step Forensic Integration Test Suite
 ├── vitest.config.mts                      # Memory-Efficient Vitest Configuration
 ├── tsconfig.json                          # TypeScript Compiler Settings
 └── package.json                           # NPM Dependencies & Scripts
@@ -408,7 +439,7 @@ pip install -e "d:/git uploads/semantica" --no-deps
 ### ⚙️ Step 3: Configure Environment Variables
 Create a `.env.local` file in the root directory:
 ```env
-NEXT_PUBLIC_APP_NAME="NEXUS Forensic Intelligence Platform"
+NEXT_PUBLIC_APP_NAME="PROJECT A.K.A.S.H.I.C. Forensic Intelligence Platform"
 NEXT_PUBLIC_APP_VERSION="1.0.0"
 PYTHON_BIN_PATH="C:/Users/Pushkar/AppData/Local/Programs/Python/Python313/python.exe"
 ```
@@ -432,16 +463,16 @@ npm run test
 - **Tests Executed**: **57 / 57 Passed** across 14 test suites in **~3.3s**.
 - **Coverage**: Store state transitions, auth handlers, Kanban drag-and-drop, date filters, map clustering, and search debounce.
 
-### 🐍 2. Semantica Engine Unit Tests
+### 🐍 2. A.K.A.S.H.I.C. Engine Unit Tests
 ```bash
-python test_semantica_engine.py
+python test_akashic_engine.py
 ```
-- **Tests Executed**: **6 / 6 Passed** in **0.147s**.
+- **Tests Executed**: **6 / 6 Passed** in **0.284s**.
 - **Coverage**: ContextGraph initialization, Kingpin Index calculation, JSON serialization, Dijkstra laundering tracer, automated ingestion pipeline, and entity resolution duplicate detector.
 
 ### 🛡️ 3. Forensic Suite Integration Tests
 ```bash
-python test_semantica_integration.py
+python test_akashic_integration.py
 ```
 - **Suites Executed**: **10 / 10 Passed**.
 - **Coverage**:
@@ -496,5 +527,5 @@ npm run build
 ---
 
 <p align="center">
-  <b>NEXUS INTELLIGENCE PLATFORM — PROVING TRUTH THROUGH STRUCTURED GRAPH FORENSICS</b>
+  <b>PROJECT A.K.A.S.H.I.C. — PROVING TRUTH THROUGH STRUCTURED GRAPH FORENSICS</b>
 </p>

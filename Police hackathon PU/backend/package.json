@@ -1,7 +1,7 @@
 {
-  "name": "nexus-backend",
+  "name": "akashic-backend",
   "version": "1.0.0",
-  "description": "NEXUS Cyber-Intelligence Platform - Production Backend Service",
+  "description": "PROJECT A.K.A.S.H.I.C. Cyber-Intelligence Platform - Production Backend Service",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

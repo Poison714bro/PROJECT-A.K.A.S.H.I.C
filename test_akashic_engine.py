@@ -24,17 +24,17 @@ for p in [PU_HACKATHON_ROOT, SEMANTICA_PATH]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from analysis.semantica_graph_service import SemanticaGraphService
-from ingestion.semantica_pipeline import SemanticaIngestionPipeline
-from analysis.semantica_entity_resolver import SemanticaEntityResolver
+from analysis.akashic_graph_service import SemanticaGraphService as AkashicGraphService
+from ingestion.akashic_pipeline import SemanticaIngestionPipeline as AkashicIngestionPipeline
+from analysis.akashic_entity_resolver import SemanticaEntityResolver as AkashicEntityResolver
 
 
-class TestSemanticaEngine(unittest.TestCase):
+class TestAkashicEngine(unittest.TestCase):
 
     def setUp(self):
-        self.graph_service = SemanticaGraphService()
-        self.ingestion_pipeline = SemanticaIngestionPipeline(self.graph_service)
-        self.entity_resolver = SemanticaEntityResolver(self.graph_service)
+        self.graph_service = AkashicGraphService()
+        self.ingestion_pipeline = AkashicIngestionPipeline(self.graph_service)
+        self.entity_resolver = AkashicEntityResolver(self.graph_service)
 
     def test_01_graph_service_initialization(self):
         """Verify ContextGraph is populated with seed entities."""

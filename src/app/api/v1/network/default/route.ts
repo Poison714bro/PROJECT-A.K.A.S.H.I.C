@@ -8,7 +8,7 @@ const execFileAsync = promisify(execFile);
 
 export async function GET() {
   try {
-    const pythonScript = path.join(process.cwd(), 'analysis', 'semantica_graph_service.py');
+    const pythonScript = path.join(process.cwd(), 'analysis', 'akashic_graph_service.py');
     
     // Resolve python executable
     const py313 = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python313', 'python.exe');

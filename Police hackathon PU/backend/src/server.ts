@@ -11,7 +11,7 @@ const startServer = async () => {
 
   const server = app.listen(config.port, () => {
     console.log(`===================================================`);
-    console.log(`🔒 NEXUS Cyber-Intelligence Backend Running on port ${config.port}`);
+    console.log(`🌌 A.K.A.S.H.I.C. Cyber-Intelligence Backend Running on port ${config.port}`);
     console.log(`📡 API Base: http://localhost:${config.port}${config.apiPrefix}`);
     console.log(`📋 Swagger Docs: http://localhost:${config.port}/docs`);
     console.log(`💚 Health Probe: http://localhost:${config.port}${config.apiPrefix}/health`);
@@ -24,7 +24,7 @@ const startServer = async () => {
     // [H7] Disconnect Prisma to release DB connection pool.
     await DatabaseService.disconnect();
     server.close(() => {
-      console.log('NEXUS Backend server terminated.');
+      console.log('A.K.A.S.H.I.C. Backend server terminated.');
       process.exit(0);
     });
 
@@ -51,7 +51,7 @@ const startServer = async () => {
 
 if (require.main === module) {
   startServer().catch((err) => {
-    console.error('Failed to start NEXUS server:', err);
+    console.error('Failed to start A.K.A.S.H.I.C. server:', err);
     process.exit(1);
   });
 }

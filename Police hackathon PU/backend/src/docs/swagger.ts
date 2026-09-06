@@ -1,7 +1,7 @@
 export const swaggerDocument = {
   openapi: '3.0.0',
   info: {
-    title: 'NEXUS Cyber-Intelligence Platform API',
+    title: 'A.K.A.S.H.I.C. Cyber-Intelligence Platform API',
     version: '1.0.0',
     description: 'Production REST API for dark-web cyber-intelligence investigation and timeline reconstruction.',
   },

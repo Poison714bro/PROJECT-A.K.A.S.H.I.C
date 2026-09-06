@@ -1,5 +1,5 @@
 """
-Verification test suite for Semantica intelligence modules in NEXUS platform.
+Verification test suite for AKASHIC intelligence modules in A.K.A.S.H.I.C. platform.
 """
 
 from datetime import datetime
@@ -17,9 +17,9 @@ from analysis.exporters.dossier_exporter import DossierExporter
 from analysis.exporters.graph_exporter import GraphExporter
 
 
-def test_semantica_suite():
+def test_akashic_suite():
     print("==================================================================")
-    print("   NEXUS FORENSIC INTELLIGENCE SUITE — INTEGRATION TEST          ")
+    print("   PROJECT A.K.A.S.H.I.C. FORENSIC INTELLIGENCE SUITE             ")
     print("==================================================================")
     
     engine = CorrelationEngine()
@@ -183,9 +183,9 @@ def test_semantica_suite():
     print(f" -> Detected Operational Events: {[e['event_type'] for e in events]}")
 
     print("\n==================================================================")
-    print("   [SUCCESS] ALL 10 SEMANTICA FORENSIC SUITES PASSED!            ")
+    print("   [SUCCESS] ALL 10 A.K.A.S.H.I.C. FORENSIC SUITES PASSED!       ")
     print("==================================================================")
 
 
 if __name__ == "__main__":
-    test_semantica_suite()
+    test_akashic_suite()
