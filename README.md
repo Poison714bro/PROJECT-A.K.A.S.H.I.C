@@ -18,12 +18,17 @@
 ## 📑 Table of Contents
 
 - [1. Executive Overview & Problem Statement](#1-executive-overview--problem-statement)
-- [2. System Architecture & High-Level Flow](#2-system-architecture--high-level-flow)
+- [2. System Architecture & Intelligence Workflow](#2-system-architecture--intelligence-workflow)
+  - [2.1 End-to-End Operational Pipeline Diagram](#21-end-to-end-operational-pipeline-diagram)
+  - [2.2 Stage 1: Intake of Intelligence](#22-stage-1-intake-of-intelligence)
+  - [2.3 Stage 2: OSINT + Crypto Attribution Layer](#23-stage-2-osint--crypto-attribution-layer)
+  - [2.4 Stage 3: AI Layer & Prediction Models](#24-stage-3-ai-layer--prediction-models)
+  - [2.5 Stage 4: Investigation Canvas / Hub](#25-stage-4-investigation-canvas--hub)
 - [3. Core Operational Modules](#3-core-operational-modules)
   - [3.1 Executive Command Center](#31-executive-command-center)
   - [3.2 Entity Resolution Engine & Syndicate Matrix](#32-entity-resolution-engine--syndicate-matrix)
   - [3.3 Evidence Graph & Neural Physics Simulation](#33-evidence-graph--neural-physics-simulation)
-  - [3.4 Geospatial Supply Chain Corridors (Deck.gl 9)](#34-geospatial-supply-chain-corridors-deckgl-9)
+  - [3.4 Geospatial Supply Chain Corridors (Leaflet.js & Deck.gl 9)](#34-geospatial-supply-chain-corridors-leafletjs--deckgl-9)
   - [3.5 Forensic Case Management & Tamper-Evident Ledger](#35-forensic-case-management--tamper-evident-ledger)
   - [3.6 Pattern of Life & Darknet Triplet Mining Studio](#36-pattern-of-life--darknet-triplet-mining-studio)
 - [4. Technology Stack](#4-technology-stack)
@@ -50,39 +55,122 @@ Modern cyber-narcotics cartels and darknet threat syndicates operate across dist
 
 ---
 
-## 2. System Architecture & High-Level Flow
+## 2. System Architecture & Intelligence Workflow
+
+The NEXUS operational workflow transforms raw, unstructured, multi-source darknet feeds and encrypted communications into correlated spatial intelligence, predictive transit models, and court-admissible dossiers.
+
+### 2.1 End-to-End Operational Pipeline Diagram
 
 ```mermaid
 flowchart TB
-    subgraph DataIngestion ["1. Data Ingestion & Triplet Extraction"]
-        RawData["Raw Comms / Darknet Posts / Bank Logs"] --> NER["Cybercrime NER & Regex Miner"]
-        NER --> Triplets["RDF Triplet Miner (Subject-Predicate-Object)"]
-        Triplets --> IngestAPI["POST /api/v1/ingest/pipeline"]
+    %% AI Layer & Prediction Models (Top-Left)
+    subgraph AILayer ["AI Layer & Prediction Models"]
+        direction TB
+        NLP["NLP Entity Recognition /<br/>Drug Type Classifier"]
+        TimeAnalysis["Timestamp Series Analysis<br/>10-Year Historical Data"]
+        VisualMeta["Visual Metadata Object"]
+        RouteModel["Route Availability<br/>Prediction Model"]
+
+        NLP -->|"Hex Color Tagging Layer"| VisualMeta
+        NLP -->|"Geo-Tagged Nodes"| VisualMeta
+        TimeAnalysis -->|"Hotspot Zones"| RouteModel
+        TimeAnalysis -.->|"Historical Trends"| RouteModel
     end
 
-    subgraph SemanticaEngine ["2. Python 3.13 Semantica Graph Service"]
-        IngestAPI --> ContextGraph["Semantica ContextGraph"]
-        ContextGraph --> Louvain["Louvain Community Detection (Syndicates)"]
-        ContextGraph --> PageRank["Kingpin Index (PageRank + Betweenness)"]
-        ContextGraph --> Dijkstra["Laundering Flow Route Tracer (Dijkstra)"]
-        ContextGraph --> LinkPredictor["Covert Tie Predictor (Shared Infra Heuristics)"]
-        ContextGraph --> EntityResolver["Deterministic Entity Matcher (PGP / Wallet / Exif)"]
+    %% Intake of Intelligence (Top-Center)
+    subgraph IntakeIntelligence ["Intake of Intelligence"]
+        direction TB
+        Feeds["Darknet Onion Feeds /<br/>Telegram Encrypted Logs"]
+        Processor["Data Processor"]
+        Feeds -->|"Scrape & Normalize"| Processor
     end
 
-    subgraph ForensicCore ["3. Forensic Arbitration & Chain of Custody"]
-        EntityResolver --> ConflictResolver["Credibility-Weighted Contradiction Resolver"]
-        ConflictResolver --> SHA256Chain["Tamper-Evident SHA-256 Ledger (Merkle Chained)"]
-        SHA256Chain --> DossierGen["Section 65B Court Dossier Exporter"]
+    %% OSINT + Crypto Layer (Middle-Tier)
+    subgraph OSINTCryptoLayer ["OSINT + Crypto Layer"]
+        direction TB
+        subgraph IPTrack ["Network & IP Resolution"]
+            TorDB["Tor Exit Node DBs / IP<br/>Whois Data Lookups"]
+            Resolver["Public Resolver Service"]
+            TorDB -->|"IP-Resolve"| Resolver
+        end
+
+        subgraph CryptoTrack ["Blockchain & Financial Attribution"]
+            WalletCluster["Wallet Graph Clustering<br/>from Blockchain APIs"]
+            GeoHints["Inferred Geo-Hints"]
+            WalletCluster -->|"Wallet ID Hash Match"| GeoHints
+        end
     end
 
-    subgraph FrontendUI ["4. Real-Time Next.js 14 Operator Interface"]
-        ContextGraph --> EvidenceGraph["Evidence Graph (D3 Particle Physics Canvas)"]
-        ContextGraph --> MapView["Geospatial Corridors (Deck.gl 9 GPU Layers)"]
-        EntityResolver --> EntityResolutionUI["Entity Resolution & Syndicate Matrix"]
-        ConflictResolver --> CaseManagerUI["Investigations Manager & Audit Ledger"]
-        DossierGen --> CourtExportUI["One-Click Law Enforcement Markdown Dossier"]
+    %% Investigation Canvas / Hub (Bottom-Tier)
+    subgraph InvestigationHub ["Investigation Canvas / Hub"]
+        direction LR
+        LeafletMap[("Interactive Leaflet.js Map<br/>(Spatial Coordinate Hub)")]
+        AIDigests["Time-Bounded AI Digests<br/>LLM Summarization Output"]
     end
+
+    %% Cross-layer Directed Flows
+    Processor -->|"User Handles Extracted"| OSINTCryptoLayer
+    GeoHints -->|"Lat/Lng"| LeafletMap
+    VisualMeta -.->|"Color Tagging & Schema"| LeafletMap
+    RouteModel -.->|"Predicted Supply Corridors"| LeafletMap
+    VisualMeta -.->|"Structured Intelligence"| AIDigests
+    RouteModel -.->|"Corridor Telemetry"| AIDigests
+
+    %% Node & Subgraph Styling
+    style Feeds fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#ffffff
+    style Processor fill:#0284c7,stroke:#38bdf8,stroke-width:2px,color:#ffffff
+    style AILayer fill:#181825,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4
+    style OSINTCryptoLayer fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
+    style InvestigationHub fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4
+    style LeafletMap fill:#111827,stroke:#38bdf8,stroke-width:2px,color:#ffffff
+    style AIDigests fill:#111827,stroke:#c084fc,stroke-width:2px,color:#ffffff
 ```
+
+---
+
+### 2.2 Stage 1: Intake of Intelligence
+1. **Raw Multi-Source Ingestion**:
+   - **Darknet Onion Feeds**: Ingests vendor postings, escrow notes, product catalogs, and PGP signatures from Tor hidden services (`.onion`).
+   - **Telegram Encrypted Logs**: Ingests channel dumps, bot logs, and encrypted peer-to-peer chat extracts.
+2. **Scrape & Normalize (`Data Processor`)**:
+   - Strips transport markup, normalizes character encodings, and cleans raw text.
+   - Extracts key entities: **User Handles** (`@handle`, vendor aliases, forum screen names), burner emails, and session tokens.
+   - Dispatches parsed handles directly into the OSINT and Crypto attribution pipeline.
+
+---
+
+### 2.3 Stage 2: OSINT + Crypto Attribution Layer
+1. **Network & IP Attribution**:
+   - **Tor Exit Node DBs & IP Whois Data Lookups**: Correlates network telemetry against historical Tor relay directories, known exit nodes, and ISP Autonomous System Numbers (ASNs).
+   - **IP-Resolve & Public Resolver Service**: Resolves cleared IP endpoints and server infrastructure through reverse-DNS and public resolver microservices.
+2. **Blockchain & Financial Clustering**:
+   - **Wallet Graph Clustering from Blockchain APIs**: Ingests transaction graphs for Bitcoin (BTC), Ethereum (ETH), and Monero (XMR) across public ledgers.
+   - **Wallet ID Hash Match**: Resolves co-spending inputs, change addresses, and exchange deposit addresses.
+   - **Inferred Geo-Hints (`Lat/Lng`)**: Derives probabilistic physical location hints from exchange KYC choke-points, IP-associated liquidity hops, and timezone-correlated transaction timing, emitting structured **`Lat/Lng` coordinates**.
+
+---
+
+### 2.4 Stage 3: AI Layer & Prediction Models
+1. **NLP Entity Recognition & Drug Type Classifier**:
+   - Deep NLP categorization of illicit narcotics (Fentanyl, Methamphetamine, Heroin, MDMA, Precursor chemicals).
+   - **Hex Color Tagging Layer**: Assigns standardized forensic color codes (e.g., `#EF4444` for Opioids, `#3B82F6` for Stimulants, `#10B981` for Precursors).
+   - **Geo-Tagged Nodes**: Binds physical contraband seized or mentioned to geographic bounding boxes.
+   - **Visual Metadata Object**: Encapsulates entity attributes, risk scores, hex tags, and spatial anchors for frontend rendering.
+2. **Timestamp Series Analysis (10-Year Historical Data)**:
+   - Evaluates a decade of longitudinal seizure timestamps, darknet dispatch logs, and trafficking incidents.
+   - Computes dynamic **Hotspot Zones** based on temporal density and seasonal contraband spikes.
+3. **Route Availability Prediction Model**:
+   - Combines historical hotspot trendlines with real-time interdiction data to predict active trafficking routes and alternative smuggling corridors.
+
+---
+
+### 2.5 Stage 4: Investigation Canvas / Hub
+1. **Interactive Leaflet.js Map**:
+   - Central spatial Common Operating Picture (COP).
+   - Ingests `Lat/Lng` coordinate streams from **Inferred Geo-Hints**, renders **Geo-Tagged Nodes**, and visualizes **Predicted Supply Corridors** with dynamic styling from the **Visual Metadata Object**.
+2. **Time-Bounded AI Digests / LLM Summarization Output**:
+   - Natural language intelligence summarization engine.
+   - Generates executive briefing notes, timeline chronologies, and target activity digests strictly bounded by investigator-selected timeframes.
 
 ---
 
@@ -114,12 +202,15 @@ flowchart TB
 
 ---
 
-### 3.4 Geospatial Supply Chain Corridors (Deck.gl 9)
-- **High-Density GPU Geospatial Layers**:
+### 3.4 Geospatial Supply Chain Corridors (Leaflet.js & Deck.gl 9)
+- **Interactive Leaflet.js Map Investigation Canvas**:
+  - High-responsiveness geospatial canvas rendering geo-referenced suspect nodes, Inferred Geo-Hints (`Lat/Lng`), and border checkpoints.
+  - Interactive marker clustering and tactical overlays styled dynamically from the **Visual Metadata Object** (Hex color tagging layer).
+- **High-Density GPU Geospatial Layers (Deck.gl 9)**:
   - `ScatterplotLayer`: Renders individual seizure incidents and drug lab locations color-coded by drug category.
   - `ArcLayer`: Renders 3D arcs mapping transnational supply logistics from source synthesis labs to regional distribution nodes.
-  - `PathLayer`: Displays multi-waypoint transit corridors with dashed animated styles.
-  - `HeatmapLayer`: Real-time seizure density heatmaps across cities and border zones.
+  - `PathLayer`: Displays multi-waypoint transit corridors with dashed animated styles based on the **Route Availability Prediction Model**.
+  - `HeatmapLayer`: Real-time seizure density heatmaps across cities and border zones derived from **10-Year Historical Timestamp Series Analysis**.
 - **Supercluster Integration**: Hardware-accelerated client-side point clustering scaling up to 10,000+ simultaneous map pins.
 - **Temporal Playback Slider**: Interactive timeline scrubbing showing the temporal progression of smuggling routes over time.
 
@@ -127,6 +218,7 @@ flowchart TB
 
 ### 3.5 Forensic Case Management & Tamper-Evident Ledger
 - **Kanban Case Pipeline**: Drag-and-drop investigation workflow powered by `@dnd-kit/core` and `@dnd-kit/sortable` with persistent state tracking.
+- **Time-Bounded AI Digests & LLM Summaries**: Automated generation of chronological case chronologies and tactical threat summaries bounded by investigator-defined date ranges.
 - **Contradiction Resolver**: Detects contradictory statements between multiple human informants or surveillance logs and arbitrates using credibility-weighted scoring:
   $$\text{Score}(v) = \sum_{c \in \text{Claims}(v)} \text{Credibility}(c.\text{source}) \times \text{Weight}(c.\text{type})$$
 - **Tamper-Evident SHA-256 Chain**: Cryptographic audit ledger where every investigative decision (persona merge, dispute resolution, evidence tag) is hashed with the previous block's SHA-256 hash.
@@ -136,12 +228,11 @@ flowchart TB
 
 ### 3.6 Pattern of Life & Darknet Triplet Mining Studio
 - **Composite Temporal Histograms**: Dual-axis Recharts visualizing communication frequencies, transaction volumes, and darknet vendor post spikes.
-- **Cybercrime Named Entity Recognition (NER)**: Regex & heuristic miners extracting:
+- **Cybercrime Named Entity Recognition (NER) & Slang Classifier**: Regex, NLP & heuristic miners extracting:
   - Bitcoin (Bech32, P2PKH, P2SH) & Monero (XMR) addresses
   - 40-character PGP key fingerprints
-  - Telegram handles (`@username`)
-  - Tor v3 `.onion` URLs
-  - Illicit substances (Fentanyl, Oxycodone, MDMA, Meth, Cocaine)
+  - Telegram handles (`@username`) and Tor v3 `.onion` URLs
+  - Illicit substances (Fentanyl, Oxycodone, MDMA, Meth, Cocaine, Precursor chemicals)
 - **One-Click ContextGraph Ingestion**: Ingests mined RDF Triplets (`Subject -[Predicate]-> Object`) directly into the active Semantica knowledge graph backend.
 
 ---
@@ -155,11 +246,12 @@ flowchart TB
 | **React** | `18.3.1` | Component Architecture & State Hooks |
 | **TypeScript** | `5.9.3` | Strict Static Typing & Schema Definitions |
 | **TailwindCSS** | `3.4.19` | Cyberpunk Dark Mode & Glassmorphism Design System |
-| **Framer Motion** | `11.18.2` | Smooth Micro-Interactions, Drawers & Lightboxes |
+| **Leaflet.js / React-Leaflet** | `1.9.4` | Interactive Geo-Hint & Tactical Map Hub |
 | **Deck.gl** | `9.3.11` | GPU-Accelerated WebGL Geospatial Data Layers |
 | **MapLibre GL** | `6.6.0` | High-Resolution Vector Basemap Renderer |
 | **react-force-graph-2d** | `1.29.1` | D3-Powered Particle Physics Knowledge Graph |
 | **Recharts** | `2.15.4` | Composed Timeline & Temporal Histograms |
+| **Framer Motion** | `11.18.2` | Smooth Micro-Interactions, Drawers & Lightboxes |
 | **@dnd-kit** | `6.3.1` | Hardware-Accelerated Drag and Drop Kanban Board |
 | **Zustand** | `5.0.15` | Global State Management & Entity Cross-Selection |
 | **Lucide React** | `0.400.0` | Vector Iconography System |
@@ -174,6 +266,7 @@ flowchart TB
 | **Pydantic** | `2.13.5` | Strict Python Data Schema Validation |
 | **Prisma ORM** | `5.22.0` | Database Modeling & Schema Migrations |
 | **Express / CORS** | `5.2.1 / 2.8.6` | Lightweight Auxiliary API Dispatch |
+| **Darknet Intel MCP** | `v2.0` | Model Context Protocol OSINT & Stylometry Server |
 
 ---
 
@@ -271,6 +364,10 @@ All endpoints are strictly typed via TypeScript and return standardized JSON env
 | `POST` | `/api/v1/intelligence/dossier` | Generates formatted Law Enforcement Markdown dossier | `{ targetId: string }` |
 | `GET` | `/api/v1/intelligence/alias-matches` | Lists duplicate persona candidates with scores | None |
 | `POST` | `/api/v1/intelligence/merge-aliases` | Merges secondary persona into master entity | `{ primaryId, secondaryId, reason }` |
+| `POST` | `/api/v1/intelligence/osint/resolve` | Resolves IP/Whois and correlates Tor exit node DBs | `{ handleOrIp: string }` |
+| `POST` | `/api/v1/intelligence/crypto/cluster` | Clusters blockchain wallets and infers geo-hints (`Lat/Lng`) | `{ addresses: string[] }` |
+| `POST` | `/api/v1/intelligence/routes/predict` | Predicts contraband transit corridors from 10-yr hotspots | `{ origin, destination, drugType }` |
+| `POST` | `/api/v1/intelligence/summarize` | Generates time-bounded LLM situational threat digests | `{ timeWindow: string, entityIds?: string[] }` |
 | `GET` | `/api/v1/map/pins` | Retrieves geo-located drug seizure incidents | `?startDate=...&endDate=...&drugCategory=...` |
 | `GET` | `/api/v1/dashboard/kpis` | Returns executive threat statistics & counts | None |
 | `GET` | `/api/v1/dashboard/feed` | Streaming threat notifications & alert ticker | `?limit=12` |
