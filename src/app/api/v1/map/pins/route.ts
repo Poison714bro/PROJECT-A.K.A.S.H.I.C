@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { mapPinsData } from '@/lib/mockData';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
@@ -10,34 +10,24 @@ export async function GET(request: Request) {
     const riskMin = searchParams.get('riskMin');
     const riskMax = searchParams.get('riskMax');
 
-    let results = [...mapPinsData];
+    const where: any = {};
 
-    // Filter by Date Range (mocking a DB query over time)
     if (startDate && endDate) {
-      const startTs = new Date(startDate).getTime();
-      const endTs = new Date(endDate).getTime();
-      
-      results = results.filter((pin) => {
-        const pinTs = new Date(pin.date).getTime();
-        return pinTs >= startTs && pinTs <= endTs;
-      });
+      where.date = { gte: new Date(startDate), lte: new Date(endDate) };
     }
-
-    // Filter by Drug Categories
     if (categoriesParam) {
-      const activeCategories = new Set(categoriesParam.split(','));
-      results = results.filter((pin) => activeCategories.has(pin.drugCategory));
+      where.drugCategory = { in: categoriesParam.split(',') };
     }
-    
-    // Filter by Risk
     if (riskMin || riskMax) {
-      const min = riskMin ? parseFloat(riskMin) : 0;
-      const max = riskMax ? parseFloat(riskMax) : 100;
-      results = results.filter((pin) => pin.riskScore >= min && pin.riskScore <= max);
+      where.riskScore = {
+        gte: riskMin ? parseFloat(riskMin) : 0,
+        lte: riskMax ? parseFloat(riskMax) : 100
+      };
     }
 
-    // Map into expected Api format
-    const pins = results.map(inc => ({
+    const incidents = await prisma.mapIncident.findMany({ where, take: 2000 });
+
+    const pins = incidents.map(inc => ({
       id: inc.id,
       lat: inc.lat,
       lng: inc.lng,
@@ -45,20 +35,23 @@ export async function GET(request: Request) {
       country: inc.label.split(',')[1]?.trim() || "Unknown",
       drugCategory: inc.drugCategory,
       riskScore: inc.riskScore,
-      entityId: inc.id,
-      date: inc.date,
+      entityId: inc.entityId || inc.id,
+      date: inc.date.toISOString(),
       label: inc.label,
       quantityEst: inc.details,
       sourceType: "osint",
-      originRoute: inc.originRoute || [],
-      confiscatedAmount: inc.confiscatedAmount
+      originRoute: inc.originRoute ? JSON.parse(inc.originRoute) : []
     }));
 
+<<<<<<< Updated upstream
     // Simulate network latency for Project A.K.A.S.H.I.C. telemetry realism
     await new Promise((resolve) => setTimeout(resolve, 200));
 
+=======
+>>>>>>> Stashed changes
     return NextResponse.json({ success: true, data: pins });
   } catch (error: any) {
+    console.error("[/api/v1/map/pins] Prisma query failed:", error);
     return NextResponse.json({ success: false, error: { message: error.message } }, { status: 500 });
   }
 }
