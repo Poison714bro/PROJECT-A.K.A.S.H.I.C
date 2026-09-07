@@ -254,18 +254,30 @@ export default function TimelineReconstructor() {
     handleRunExtraction();
   }, [handleRunExtraction]);
 
+  const searchTimersRef = useRef<NodeJS.Timeout[]>([]);
+  useEffect(() => {
+    return () => {
+      searchTimersRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
     
+    // Clear any previous running search timers
+    searchTimersRef.current.forEach(clearTimeout);
+    searchTimersRef.current = [];
+
     setIsSearching(true);
     setHasResults(false);
     setSearchError(null);
     setSearchStep(1);
 
-    const t1 = setTimeout(() => setSearchStep(2), 1200);
-    const t2 = setTimeout(() => setSearchStep(3), 2500);
-    const t3 = setTimeout(() => setSearchStep(4), 3800);
+    const t1 = setTimeout(() => setSearchStep(2), 600);
+    const t2 = setTimeout(() => setSearchStep(3), 1200);
+    const t3 = setTimeout(() => setSearchStep(4), 1800);
+    searchTimersRef.current.push(t1, t2, t3);
     
     let success = false;
     let errorMsg: string | null = null;
@@ -288,7 +300,7 @@ export default function TimelineReconstructor() {
       console.error(err);
       errorMsg = "Failed to reconstruct timeline.";
     } finally {
-      setTimeout(() => {
+      const tEnd = setTimeout(() => {
         setIsSearching(false);
         if (success) {
           setHasResults(true);
@@ -296,7 +308,8 @@ export default function TimelineReconstructor() {
         } else {
           setSearchError(errorMsg);
         }
-      }, Math.max(0, 4500));
+      }, 2000);
+      searchTimersRef.current.push(tEnd);
     }
   };
 
@@ -315,7 +328,7 @@ export default function TimelineReconstructor() {
   return (
     <div className="flex h-full flex-col bg-background overflow-hidden">
       {/* Sub-Navigation Modes for Timeline Engine */}
-      <div className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-800 bg-[#0d131f]/95 px-6 py-2.5 backdrop-blur-md shrink-0">
+      <div className="sticky top-0 z-subnav flex items-center justify-between border-b border-slate-800 bg-[#0d131f]/95 px-6 py-2.5 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-2">
           {[
             { id: "engine", label: "Temporal Timeline Engine", icon: Activity },
@@ -456,7 +469,7 @@ export default function TimelineReconstructor() {
       {timelineTab === "engine" && (
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search Header */}
-          <div className="z-header border-b border-border bg-background/95 px-8 py-6 backdrop-blur-md sticky top-0 shrink-0">
+          <div className="z-subnav border-b border-border bg-background/95 px-8 py-6 backdrop-blur-md sticky top-0 shrink-0">
             <form onSubmit={handleSearch} className="mx-auto max-w-4xl">
               <div className="relative flex items-center">
                 <Search className="absolute left-4 h-5 w-5 text-zinc-500" />
@@ -465,6 +478,7 @@ export default function TimelineReconstructor() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Enter Alias, BTC Wallet, PGP Key, or Session ID to reconstruct timeline..."
+                  aria-label="Enter Alias, BTC Wallet, PGP Key, or Session ID to reconstruct timeline"
                   className="w-full rounded-xl border border-border bg-card py-4 pl-12 pr-4 text-sm font-medium text-white placeholder-zinc-500 shadow-inner focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
                   disabled={isSearching}
                 />

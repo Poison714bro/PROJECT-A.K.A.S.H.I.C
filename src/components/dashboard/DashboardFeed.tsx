@@ -52,6 +52,7 @@ function getExactCategoryColor(category: string) {
 
 export function DashboardFeed({ feed }: { feed?: any[] }) {
   const openDossier = useAppStore((s) => s.openDossier);
+  const setActiveView = useAppStore((s) => s.setActiveView);
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
   const [popoverActive, setPopoverActive] = useState<string | null>(null); // Stores ID of row with active popover
 
@@ -73,7 +74,10 @@ export function DashboardFeed({ feed }: { feed?: any[] }) {
           <h3 className="text-sm font-bold text-white tracking-wide">Multi-Source Intelligence Feed</h3>
           <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] ml-2" />
         </div>
-        <button className="text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 focus:outline-none flex items-center">
+        <button 
+          onClick={() => setActiveView("report-alerts")}
+          className="text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 focus:outline-none flex items-center transition-colors"
+        >
           View All <ChevronRight className="ml-0.5 inline h-3 w-3" />
         </button>
       </div>

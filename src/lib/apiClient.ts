@@ -363,10 +363,17 @@ async function request<T>(
       };
     }
 
+    let errorMessage = `HTTP ${res.status}`;
+    if (typeof json.error === "string") {
+      errorMessage = json.error;
+    } else if (json.error?.message) {
+      errorMessage = json.error.message;
+    }
+
     return {
       ok: false,
       data: null,
-      error: json.error?.message || `HTTP ${res.status}`,
+      error: errorMessage,
     };
   } catch (err: any) {
     console.error(`[API Client] Network or parsing error for ${method} ${path}:`, err);

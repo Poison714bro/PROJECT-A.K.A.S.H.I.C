@@ -283,7 +283,11 @@ export default function EntityResolution() {
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md"
             onClick={() => setLightboxImage(null)}
           >
-            <button className="absolute top-6 right-6 text-slate-400 hover:text-white">
+            <button
+              onClick={() => setLightboxImage(null)}
+              aria-label="Close image lightbox"
+              className="absolute top-6 right-6 text-slate-400 hover:text-white"
+            >
               <X className="h-8 w-8" />
             </button>
             <div className="flex flex-col items-center">
@@ -295,7 +299,7 @@ export default function EntityResolution() {
       </AnimatePresence>
 
       {/* Sub-Navigation Modes for Entity Resolution */}
-      <div className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-800 bg-[#0d131f]/95 px-6 py-2.5 backdrop-blur-md shrink-0">
+      <div className="sticky top-0 z-subnav flex items-center justify-between border-b border-slate-800 bg-[#0d131f]/95 px-6 py-2.5 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-2">
           {[
             { id: "candidates", label: "Persona Merge Queue", icon: Merge, count: candidates.length },
@@ -511,7 +515,7 @@ export default function EntityResolution() {
         ) : (
           <div className="flex flex-col flex-1">
             {/* Candidate Triage Bar */}
-            <div className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-[#0a0f18]/90 px-6 py-3 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+            <div className="sticky top-0 z-controls flex items-center justify-between border-b border-border bg-[#0a0f18]/90 px-6 py-3 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 border border-slate-700/50 rounded-md bg-[#0f111a]/50 px-2 py-1 backdrop-blur-sm">
                   <button 

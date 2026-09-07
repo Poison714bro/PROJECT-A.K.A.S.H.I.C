@@ -444,6 +444,7 @@ export default function MapView() {
           <input
             type="text"
             placeholder="Search locations, routes..."
+            aria-label="Search locations or routes"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleSearch}
@@ -738,6 +739,7 @@ export default function MapView() {
                 min={0}
                 max={allDateRange.length - 1}
                 value={sliderValue[0]}
+                aria-label="Timeline start date"
                 onChange={(e) => handleSliderChange(e, "start")}
                 className="absolute left-0 right-0 top-1 h-6 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#0a0f18] [&::-webkit-slider-thumb]:bg-cyan-500 [&::-webkit-slider-thumb]:shadow-md"
                 style={{ zIndex: 3 }}
@@ -748,6 +750,7 @@ export default function MapView() {
                 min={0}
                 max={allDateRange.length - 1}
                 value={sliderValue[1]}
+                aria-label="Timeline end date"
                 onChange={(e) => handleSliderChange(e, "end")}
                 className="absolute left-0 right-0 top-1 h-6 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#0a0f18] [&::-webkit-slider-thumb]:bg-cyan-500 [&::-webkit-slider-thumb]:shadow-md"
                 style={{ zIndex: 4 }}

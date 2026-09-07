@@ -219,6 +219,7 @@ export default function EvidenceGraph() {
   useEffect(() => {
     setIsClient(true);
     handleExecute("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Keyboard Shortcuts
@@ -535,7 +536,7 @@ export default function EvidenceGraph() {
 
             {/* Spin Web Button */}
             <button 
-              onClick={handleExecute}
+              onClick={() => handleExecute()}
               disabled={isExecuting}
               className={`group relative flex items-center gap-1.5 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap rounded-md overflow-hidden flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background ${isExecuting ? 'bg-primary/50 text-black cursor-wait' : 'bg-primary text-black hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105'}`}
             >

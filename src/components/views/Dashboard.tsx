@@ -505,7 +505,7 @@ export default function Dashboard() {
       {/* Drug Category Details Modal */}
       <AnimatePresence>
         {isDetailsModalOpen && (
-          <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-modal flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="category-details-modal-title">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -523,7 +523,7 @@ export default function Dashboard() {
             >
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <h2 id="category-details-modal-title" className="text-lg font-bold text-white flex items-center gap-2">
                     {drugDistributionData.find(d => d.name === selectedCategory)?.color && (
                       <div className="h-3 w-3 rounded-full" style={{ background: drugDistributionData.find(d => d.name === selectedCategory)?.color }} />
                     )}
@@ -533,6 +533,7 @@ export default function Dashboard() {
                 </div>
                 <button
                   onClick={() => setIsDetailsModalOpen(false)}
+                  aria-label="Close drug category details modal"
                   className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <X className="h-5 w-5" />

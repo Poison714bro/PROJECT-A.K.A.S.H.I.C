@@ -54,7 +54,7 @@ describe('Investigations API Route (v1)', () => {
       expect(body.data[0].cards).toHaveLength(1); // col-1 (Target Identification)
       expect(body.data[1].cards).toHaveLength(1); // col-2 (Active Investigation)
       expect(body.data[2].cards).toHaveLength(1); // col-3 (Closed/Dismantled)
-      expect(body.data[0].cards[0].priority).toBe('Critical');
+      expect(body.data[0].cards[0].priority).toBe('critical');
     });
   });
 
