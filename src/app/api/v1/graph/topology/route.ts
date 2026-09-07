@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getEntityCategoryLabel } from '@/lib/enums';
 
 // Fallback / cross-syndicate correlation edges connecting key darknet targets
 const INTER_ENTITY_EDGES = [

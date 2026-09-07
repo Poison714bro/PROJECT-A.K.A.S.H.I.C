@@ -11,7 +11,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    exclude: [...configDefaults.exclude, 'Police hackathon PU/**'],
+    exclude: [...configDefaults.exclude, 'akashic-backend/**'],
     alias: {
       '@': path.resolve(__dirname, './src')
     }

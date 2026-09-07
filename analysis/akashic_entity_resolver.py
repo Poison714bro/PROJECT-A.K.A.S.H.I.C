@@ -14,10 +14,10 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
 # Ensure paths
-PU_HACKATHON_ROOT = str(Path(__file__).parent.parent)
+AKASHIC_PROJECT_ROOT = str(Path(__file__).parent.parent)
 SEMANTICA_PATH = str(Path(__file__).parent.parent.parent / "semantica")
 
-for p in [PU_HACKATHON_ROOT, SEMANTICA_PATH]:
+for p in [AKASHIC_PROJECT_ROOT, SEMANTICA_PATH]:
     if p not in sys.path:
         sys.path.insert(0, p)
 

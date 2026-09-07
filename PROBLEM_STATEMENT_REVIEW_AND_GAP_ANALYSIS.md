@@ -2,7 +2,7 @@
 ═══════════════════════════════════════════════════════════════════════════════
 Document Title : Track 3 Problem Statement Comprehensive Review & Gap Analysis
 Target Domain  : Anti-Narcotics Task Forces & Digital Cyber Crime Investigation
-Hackathon Track: Track 3 — Detection of Illicit Drug Sales on Darknet & Encrypted Platforms
+Hackathon Track: Track 3 — Detection of Illicit Drug Sales on Darknet & Encrypted Platforms (Project A.K.A.S.H.I.C.)
 Status         : Production Deep-Dive Audit
 ═══════════════════════════════════════════════════════════════════════════════
 

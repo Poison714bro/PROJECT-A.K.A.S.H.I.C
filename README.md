@@ -12,7 +12,7 @@
 [![Deck.gl](https://img.shields.io/badge/Deck.gl-v9.3.11-cyan?style=for-the-badge)](https://deck.gl/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Vitest](https://img.shields.io/badge/Tests-57%2F57%20Passing-brightgreen?style=for-the-badge&logo=vitest)](https://vitest.dev/)
-[![Security](https://img.shields.io/badge/Audit%20Ledger-SHA--256%20Immutable-orange?style=for-the-badge)](file:///d:/git%20uploads/PU-Hackathon)
+[![Security](https://img.shields.io/badge/Audit%20Ledger-SHA--256%20Immutable-orange?style=for-the-badge)](https://github.com/Poison714bro/PROJECT-A.K.A.S.H.I.C)
 
 ---
 
@@ -304,7 +304,7 @@ flowchart TB
 ## 5. Project Directory Structure
 
 ```
-PU-Hackathon/
+PROJECT-A.K.A.S.H.I.C/
 ├── analysis/                              # Python 3.13 Semantica Analytics Microservices
 │   ├── conflicts/                         # Contradiction Detection & Arbitration
 │   │   ├── conflict_detector.py           # Multi-source claim collision detector
@@ -417,8 +417,8 @@ All endpoints are strictly typed via TypeScript and return standardized JSON env
 ### 🚀 Step 1: Clone Repository & Install Node Dependencies
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/PU-Hackathon.git
-cd PU-Hackathon
+git clone https://github.com/Poison714bro/PROJECT-A.K.A.S.H.I.C.git
+cd PROJECT-A.K.A.S.H.I.C
 
 # Install frontend dependencies
 npm install
@@ -519,7 +519,7 @@ npm run build
 
 ## 10. Contributors & License
 
-- **Developed for**: Punjab Police Hackathon / National Police Hackathon 2026
+- **Project Identity**: PROJECT A.K.A.S.H.I.C. — Autonomous Knowledge-base for Anti-narcotics, Syndicate Hotspots & Inter-agency Cyber-forensics
 - **Architecture & Lead Development**: Code Blooded
 - **Knowledge Graph Framework**: Powered by [Semantica AGI](https://github.com/semantica-agi/semantica)
 - **License**: MIT License — Open for Law Enforcement & Academic Research

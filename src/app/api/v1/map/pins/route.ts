@@ -54,7 +54,7 @@ export async function GET(request: Request) {
       confiscatedAmount: inc.confiscatedAmount
     }));
 
-    // Simulate network latency for hackathon realism
+    // Simulate network latency for Project A.K.A.S.H.I.C. telemetry realism
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     return NextResponse.json({ success: true, data: pins });

@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=D:\Police Hackathon\darknet-intel-mcp\venv
+set VIRTUAL_ENV=D:\git uploads\PROJECT-A.K.A.S.H.I.C\darknet-intel-mcp\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
