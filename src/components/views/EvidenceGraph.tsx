@@ -168,14 +168,44 @@ export default function EvidenceGraph() {
   const selectEntity = useAppStore((s) => s.selectEntity);
   const clearSelection = useAppStore((s) => s.clearSelection);
 
-  const handleExecute = useCallback(() => {
+  const handleNodeSelect = useCallback(
+    (nodeData: any) => {
+      setSelectedNode(nodeData);
+      setRadialMenu(null);
+      const connectedIds = graphEdgesData
+        .filter((e) => (e.source?.id || e.source) === nodeData.id || (e.target?.id || e.target) === nodeData.id)
+        .map((e) => ((e.source?.id || e.source) === nodeData.id ? (e.target?.id || e.target) : (e.source?.id || e.source)));
+      selectEntity(nodeData.id, "node", connectedIds);
+      
+      if (fgRef.current) {
+        fgRef.current.centerAt(nodeData.x, nodeData.y, 1000);
+        fgRef.current.zoom(2.5, 1000);
+      }
+    },
+    [selectEntity, graphEdgesData]
+  );
+
+  const handleExecute = useCallback((queryOverride?: string) => {
     setIsExecuting(true);
+    const query = typeof queryOverride === 'string' ? queryOverride : searchQuery;
     api.graph.topology()
       .then((res) => {
         if (res.ok && res.data) {
           setGraphNodesData(res.data.nodes);
           setGraphEdgesData(res.data.edges);
           setIsExecuted(true);
+
+          if (query && query.trim()) {
+            const q = query.toLowerCase().trim();
+            const matched = res.data.nodes.find((n: any) =>
+              n.label?.toLowerCase().includes(q) ||
+              n.id?.toLowerCase().includes(q) ||
+              (n.category && n.category.toLowerCase().includes(q))
+            );
+            if (matched) {
+              setTimeout(() => handleNodeSelect(matched), 200);
+            }
+          }
         }
       })
       .catch((err) => {
@@ -184,12 +214,12 @@ export default function EvidenceGraph() {
       .finally(() => {
         setIsExecuting(false);
       });
-  }, []);
+  }, [searchQuery, handleNodeSelect]);
 
   useEffect(() => {
     setIsClient(true);
-    handleExecute();
-  }, [handleExecute]);
+    handleExecute("");
+  }, []);
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -231,23 +261,6 @@ export default function EvidenceGraph() {
     else setTooltipPos(null);
     return () => cancelAnimationFrame(animationFrameId);
   }, [hoverNode]);
-
-  const handleNodeSelect = useCallback(
-    (nodeData: any) => {
-      setSelectedNode(nodeData);
-      setRadialMenu(null);
-      const connectedIds = graphEdgesData
-        .filter((e) => (e.source?.id || e.source) === nodeData.id || (e.target?.id || e.target) === nodeData.id)
-        .map((e) => ((e.source?.id || e.source) === nodeData.id ? (e.target?.id || e.target) : (e.source?.id || e.source)));
-      selectEntity(nodeData.id, "node", connectedIds);
-      
-      if (fgRef.current) {
-        fgRef.current.centerAt(nodeData.x, nodeData.y, 1000);
-        fgRef.current.zoom(2.5, 1000);
-      }
-    },
-    [selectEntity, graphEdgesData]
-  );
 
   const handleNodeRightClick = useCallback((node: any, event: MouseEvent) => {
     event.preventDefault();
@@ -455,6 +468,11 @@ export default function EvidenceGraph() {
                 placeholder="TARGET POI SEED..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleExecute();
+                  }
+                }}
                 className="w-full border border-slate-700/50 bg-[#0f111a]/50 py-1.5 pl-8 pr-2 text-[11px] uppercase tracking-widest text-slate-200 placeholder-slate-600 outline-none transition-all hover:border-slate-600 focus:border-primary focus:bg-[#0f111a] rounded-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
               />
             </div>

@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -32,7 +32,6 @@ model IntelEntity {
   firstSeen      DateTime
   lastActive     DateTime
   summary        String
-  rawData        Json?
 
   // Relationships
   cryptoWallets  CryptoWallet[]
@@ -77,7 +76,6 @@ model FeedEntry {
   details     String
   timestamp   DateTime
   severity    String
-  rawData     Json?
   
   entityId    String?
   entity      IntelEntity? @relation(fields: [entityId], references: [id])
@@ -85,16 +83,6 @@ model FeedEntry {
   @@index([timestamp])
   @@index([sourceType])
   @@index([severity])
-}
-
-// ── Raw Ingestion Lake ──
-model RawIngestLog {
-  id          String   @id @default(uuid())
-  sourceName  String
-  payload     Json
-  processed   Boolean  @default(false)
-  errorLog    String?
-  createdAt   DateTime @default(now())
 }
 
 model MapIncident {
