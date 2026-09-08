@@ -75,6 +75,7 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
   const setDemoTimeoutActive = useAppStore((s) => s.setDemoTimeoutActive);
   const setInactivityLoggedOut = useAppStore((s) => s.setInactivityLoggedOut);
   const updateUserClearance = useAppStore((s) => s.updateUserClearance);
+  const router = useRouter();
 
   const markAllAsRead = () => {
     setNotificationsList((prev) => prev.map((a) => ({ ...a, acknowledged: true })));
