@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { KpiCard, SourceBadge } from './DashboardComponents';
+import { KpiCard, TacticalKpiCard, SourceBadge } from './DashboardComponents';
 import { Activity } from 'lucide-react';
 
 describe('DashboardComponents', () => {
@@ -78,6 +78,43 @@ describe('DashboardComponents', () => {
       const badge = screen.getByText('OSINT');
       expect(badge).toBeInTheDocument();
       expect(badge).toHaveClass('text-emerald-400');
+    });
+  });
+
+  describe('TacticalKpiCard', () => {
+    it('renders authoritative cyber intelligence metric card correctly', () => {
+      render(
+        <TacticalKpiCard
+          title="ACTIVE_TARGETS"
+          value="8"
+          trend={12.5}
+          trendLabel="vs 7d avg"
+        />
+      );
+
+      expect(screen.getByText('ACTIVE_TARGETS')).toBeInTheDocument();
+      expect(screen.getByText('8')).toBeInTheDocument();
+      expect(screen.getByText(/↑ 12\.5%/)).toBeInTheDocument();
+      expect(screen.getByText(/vs 7d avg/)).toBeInTheDocument();
+      expect(screen.getByText(/View Details →/)).toBeInTheDocument();
+    });
+
+    it('handles interaction and clicks', () => {
+      const handleClick = vi.fn();
+      render(
+        <TacticalKpiCard
+          title="ACTIVE_TARGETS"
+          value="8"
+          onClick={handleClick}
+        />
+      );
+
+      const card = screen.getByRole('button');
+      fireEvent.click(card);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      fireEvent.keyDown(card, { key: 'Enter', code: 'Enter' });
+      expect(handleClick).toHaveBeenCalledTimes(2);
     });
   });
 });

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
+import TelemetryBar from "@/components/layout/TelemetryBar";
 import Dashboard from "@/components/views/Dashboard";
 import MapView from "@/components/views/MapView";
 import EvidenceGraph from "@/components/views/EvidenceGraph";
@@ -15,11 +16,12 @@ import ReportInvestigations from "@/components/views/ReportInvestigations";
 import ReportListings from "@/components/views/ReportListings";
 import ReportFinancial from "@/components/views/ReportFinancial";
 import ReportAlerts from "@/components/views/ReportAlerts";
+import ScraplingHarvester from "@/components/views/ScraplingHarvester";
 import LoginView from "@/components/views/LoginView";
 import UnauthorizedView from "@/components/views/UnauthorizedView";
 import { useAppStore } from "@/lib/store";
 
-export type ViewType = "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts";
+export type ViewType = "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts" | "scraper";
 
 // Define clearance requirements for each view
 const VIEW_CLEARANCE_REQUIREMENTS: Record<ViewType, number> = {
@@ -35,6 +37,7 @@ const VIEW_CLEARANCE_REQUIREMENTS: Record<ViewType, number> = {
   "report-investigations": 2,
   "report-financial": 2,
   "dossier": 2,
+  "scraper": 1,
 };
 
 export default function Home() {
@@ -71,6 +74,7 @@ export default function Home() {
       case "report-listings": return <ReportListings />;
       case "report-financial": return <ReportFinancial />;
       case "report-alerts": return <ReportAlerts />;
+      case "scraper": return <ScraplingHarvester />;
       default: return <Dashboard />;
     }
   };
@@ -83,6 +87,7 @@ export default function Home() {
         <main className="flex-1 overflow-auto">
           {renderView()}
         </main>
+        <TelemetryBar />
       </div>
     </div>
   );

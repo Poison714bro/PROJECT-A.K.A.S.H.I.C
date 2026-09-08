@@ -126,3 +126,7 @@ export function SourceBadge({ type }: { type: string }) {
     </span>
   );
 }
+
+export { TacticalKpiCard } from "./TacticalKpiCard";
+export { DrugRadarIris } from "./DrugRadarIris";
+export { EventLogCard } from "./EventLogCard";
