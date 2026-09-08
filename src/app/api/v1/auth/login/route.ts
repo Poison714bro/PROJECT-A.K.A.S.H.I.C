@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { encrypt } from '@/lib/crypto';
 
 // Standard predefined operator roles
 const PREDEFINED_OPERATORS: Record<string, { role: string; clearanceLevel: number; name: string }> = {
@@ -7,6 +8,28 @@ const PREDEFINED_OPERATORS: Record<string, { role: string; clearanceLevel: numbe
   agent: { role: 'INVESTIGATOR', clearanceLevel: 2, name: 'Senior Field Investigator' },
   analyst: { role: 'ANALYST', clearanceLevel: 1, name: 'Intelligence Analyst' },
 };
+
+function setSessionCookie(response: NextResponse, userPayload: any) {
+  const sessionPayload = {
+    user: userPayload,
+    exp: Date.now() + 86400 * 1000,
+  };
+  
+  const jwe = encrypt(JSON.stringify(sessionPayload));
+  
+  const isProd = process.env.NODE_ENV === 'production';
+  const cookieName = isProd ? '__Host-session' : 'session';
+
+  response.cookies.set(cookieName, jwe, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'strict',
+    path: '/',
+    maxAge: 86400,
+  });
+  
+  return response;
+}
 
 export async function POST(request: Request) {
   try {
@@ -25,18 +48,14 @@ export async function POST(request: Request) {
     // 1. Check Predefined Operators / Mock standard credentials
     if (password === 'password' && PREDEFINED_OPERATORS[cleanUsername]) {
       const op = PREDEFINED_OPERATORS[cleanUsername];
-      return NextResponse.json({
-        success: true,
-        data: {
-          token: `akashic-jwt-token-${cleanUsername}-${Date.now()}`,
-          user: {
-            id: `usr-${cleanUsername}`,
-            username: cleanUsername,
-            role: op.role,
-            clearanceLevel: op.clearanceLevel
-          }
-        }
-      });
+      const userPayload = {
+        id: `usr-${cleanUsername}`,
+        username: cleanUsername,
+        role: op.role,
+        clearanceLevel: op.clearanceLevel
+      };
+      const response = NextResponse.json({ success: true, data: { user: userPayload } });
+      return setSessionCookie(response, userPayload);
     }
 
     // 2. Query Prisma database
@@ -51,47 +70,28 @@ export async function POST(request: Request) {
       });
 
       if (dbUser) {
-        return NextResponse.json({
-          success: true,
-          data: {
-            token: `akashic-jwt-token-${dbUser.id}-${Date.now()}`,
-            user: {
-              id: dbUser.id,
-              username: dbUser.username,
-              role: dbUser.role || 'ANALYST',
-              clearanceLevel: dbUser.clearanceLevel || 1
-            }
-          }
-        });
+        const userPayload = {
+          id: dbUser.id,
+          username: dbUser.username,
+          role: dbUser.role || 'ANALYST',
+          clearanceLevel: dbUser.clearanceLevel || 1
+        };
+        const response = NextResponse.json({ success: true, data: { user: userPayload } });
+        return setSessionCookie(response, userPayload);
       }
     } catch {
       // Graceful fallback if database user table is unseeded
     }
 
-    // Default fallback if username matches standard operator name
-    if (PREDEFINED_OPERATORS[cleanUsername]) {
-      const op = PREDEFINED_OPERATORS[cleanUsername];
-      return NextResponse.json({
-        success: true,
-        data: {
-          token: `akashic-jwt-token-${cleanUsername}-${Date.now()}`,
-          user: {
-            id: `usr-${cleanUsername}`,
-            username: cleanUsername,
-            role: op.role,
-            clearanceLevel: op.clearanceLevel
-          }
-        }
-      });
-    }
-
+    // If we reach here, neither the mock credentials nor the DB matched
     return NextResponse.json(
       { success: false, error: { message: 'Invalid credentials or operator clearance not found.' } },
       { status: 401 }
     );
   } catch (error: any) {
+    console.error("Login Error:", error);
     return NextResponse.json(
-      { success: false, error: { message: error.message || 'Authentication error' } },
+      { success: false, error: { message: 'Authentication error' } },
       { status: 500 }
     );
   }

@@ -29,11 +29,9 @@ describe('Centralized apiClient', () => {
     expect(res.error).toBeNull();
   });
 
-  it('injects Bearer token into headers when token accessor is configured', async () => {
-    setTokenAccessor(() => 'mock-jwt-token-xyz');
-
+  it('uses credentials: include for secure zero-trust cookies', async () => {
     global.fetch = vi.fn().mockImplementation((url, init) => {
-      expect(init.headers['Authorization']).toBe('Bearer mock-jwt-token-xyz');
+      expect(init.credentials).toBe('include');
       return Promise.resolve({
         ok: true,
         headers: new Headers({ 'content-type': 'application/json' }),

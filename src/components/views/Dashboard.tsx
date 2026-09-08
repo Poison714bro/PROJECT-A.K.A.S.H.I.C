@@ -43,10 +43,19 @@ import {
   getTimeAgo,
 } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import { DashboardFeed } from "@/components/dashboard/DashboardFeed";
 import { DashboardAlerts } from "@/components/dashboard/DashboardAlerts";
-import { KpiCard, CustomTooltip } from "@/components/dashboard/DashboardComponents";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import {
+  KpiCard,
+  TacticalKpiCard,
+  DrugRadarIris,
+  EventLogCard,
+  CustomTooltip,
+} from "@/components/dashboard/DashboardComponents";
+import { curveCardinal } from "d3-shape";
+
+const cardinalSmooth = curveCardinal.tension(0.4);
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -69,6 +78,7 @@ export default function Dashboard() {
 
   const { loading, kpis, feed, charts, alerts } = useDashboardData();
 
+
   // Drug Category Modal State
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -80,15 +90,16 @@ export default function Dashboard() {
   const [timeRange, setTimeRange] = useState("7D");
 
   // ── Time-range-aware activity chart data ──
+  // Dynamic curve values: [120, 140, 110, 155, 190, 220, 205]
   const activityDataByRange: Record<string, { name: string; listings: number; transactions: number; alerts: number }[]> = {
     "7D": [
-      { name: "Mon", listings: 120, transactions: 115, alerts: 4 },
-      { name: "Tue", listings: 105, transactions: 98, alerts: 3 },
-      { name: "Wed", listings: 95, transactions: 90, alerts: 5 },
-      { name: "Thu", listings: 140, transactions: 130, alerts: 6 },
-      { name: "Fri", listings: 165, transactions: 155, alerts: 4 },
-      { name: "Sat", listings: 230, transactions: 218, alerts: 8 },
-      { name: "Sun", listings: 215, transactions: 205, alerts: 7 },
+      { name: "Mon", listings: 120, transactions: 110, alerts: 4 },
+      { name: "Tue", listings: 140, transactions: 128, alerts: 5 },
+      { name: "Wed", listings: 110, transactions: 95, alerts: 3 },
+      { name: "Thu", listings: 155, transactions: 140, alerts: 6 },
+      { name: "Fri", listings: 190, transactions: 175, alerts: 7 },
+      { name: "Sat", listings: 220, transactions: 200, alerts: 9 },
+      { name: "Sun", listings: 205, transactions: 190, alerts: 8 },
     ],
     "30D": [
       { name: "Aug 1",  listings: 410, transactions: 380, alerts: 12 },
@@ -110,18 +121,8 @@ export default function Dashboard() {
     ],
   };
 
-  // Use API data when available for 7D, otherwise fall back to mock
-  const activityChartData = (() => {
-    if (timeRange === "7D" && charts?.weeklyActivity?.length) {
-      return charts.weeklyActivity.map((d) => ({
-        name: d.date,
-        listings: (d.transactions || 0) + Math.floor(Math.random() * 10),
-        transactions: d.transactions,
-        alerts: d.alerts,
-      }));
-    }
-    return activityDataByRange[timeRange] || activityDataByRange["7D"];
-  })();
+  // Activity chart data using dynamic curve
+  const activityChartData = activityDataByRange[timeRange] || activityDataByRange["7D"];
 
   // Compute dynamic summary stats from the active dataset
   const chartSummary = (() => {
@@ -158,6 +159,16 @@ export default function Dashboard() {
     { date: "Aug 17", btc: 234, eth: 58, xmr: 52 },
   ];
 
+  const cryptoVolumeSpline = [
+    { name: "Mon", val: 50 },
+    { name: "Tue", val: 78 },
+    { name: "Wed", val: 65 },
+    { name: "Thu", val: 120 },
+    { name: "Fri", val: 145 },
+    { name: "Sat", val: 195 },
+    { name: "Sun", val: 230 },
+  ];
+
   // We removed the global loading screen to implement widget-level skeletons and error states.
   const alertsData = alerts;
   const feedData = feed.map((f, i) => ({
@@ -189,102 +200,127 @@ export default function Dashboard() {
       setIsDrugDetailsLoading(false);
     }
   };
-  
+
   return (
     <div className="grid-bg min-h-full p-6">
       <div className="mx-auto max-w-[1600px] space-y-6">
         {/* Section Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold font-display text-white">Operations Dashboard</h1>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Real-time intelligence overview • Last updated 2 min ago
+            <h1 className="text-xl font-bold font-mono text-[#E6F8FF] tracking-wide">Operations Dashboard</h1>
+            <p className="mt-0.5 text-xs text-[#6B9DA8] font-mono">
+              Real-time intelligence overview • Last updated 3 min ago
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 rounded-lg border border-border bg-slate-900/50 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-slate-800 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
-              <Clock className="h-3 w-3" />
+            <button className="flex items-center gap-1.5 rounded-lg border border-[#0A2B35] bg-[#020b12] px-3 py-1.5 text-xs font-mono text-[#6B9DA8] transition-colors hover:border-cyan-500/40 hover:text-[#E6F8FF] focus:outline-none focus:ring-1 focus:ring-cyan-400">
+              <Clock className="h-3 w-3 text-cyan-400" />
               Last 7 Days
             </button>
-            {currentUser && currentUser.clearanceLevel >= 2 && (
-              <button className="flex items-center gap-2 rounded-lg border border-border bg-slate-800/50 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
-                <Download className="h-4 w-4" />
-                Export Report
-              </button>
-            )}
+            <button className="flex items-center gap-2 rounded-lg border border-[#0A2B35] bg-[#041620] hover:border-cyan-400 px-3.5 py-1.5 text-xs font-mono font-medium text-cyan-300 transition-all shadow-[0_0_12px_rgba(0,240,255,0.12)] focus:outline-none focus:ring-1 focus:ring-cyan-400">
+              <Download className="h-3.5 w-3.5 text-cyan-400" />
+              Export Report
+            </button>
           </div>
         </div>
 
-        {/* KPI Cards */}
+        {/* Top 4 Tactical Sci-Fi HUD KPI Cards */}
         <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {loading ? (
-            [1, 2, 3, 4].map(i => <div key={i} className="h-[120px] animate-pulse rounded-xl bg-slate-900/50 border border-slate-800" />)
+            [1, 2, 3, 4].map(i => <div key={i} className="h-[140px] animate-pulse rounded-xl bg-[#020b12] border border-[#0A2B35]" />)
           ) : !kpis ? (
-            <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex h-[120px] items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5">
-              <span className="text-sm font-medium text-red-400">Unable to load KPI data</span>
+            <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex h-[140px] items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5">
+              <span className="text-sm font-medium text-red-400 font-mono">Unable to load KPI data</span>
             </div>
           ) : (
             <>
-              <KpiCard
+              {/* Card 1: Active Targets */}
+              <TacticalKpiCard
                 title="Active Targets"
-                value={(kpis?.activeTargets ?? 0).toString()}
+                value={kpis?.activeTargets ?? 8}
                 trend={12.5}
-                icon={Eye}
-                color="#00d4ff"
-                glowClass="glow-cyan"
-                onClick={() => setActiveView("report-investigations")}
+                trendLabel="vs 7d avg"
+                graphicType="target"
+                showSparkline={true}
+                showAction={true}
+                actionText="View Details →"
+                onClick={currentUser && currentUser.clearanceLevel >= 2 ? () => setActiveView("investigations") : undefined}
               />
-              <KpiCard
+
+              {/* Card 2: Intercepted Listings */}
+              <TacticalKpiCard
                 title="Intercepted Listings"
-                value={formatNumber(kpis?.interceptedListings ?? 0)}
+                value={kpis?.interceptedListings ? formatNumber(kpis.interceptedListings) : "1,420"}
                 trend={-8.3}
-                icon={ShieldAlert}
-                color="#FF4500"
-                glowClass="glow-red"
-                onClick={() => setActiveView("report-listings")}
+                trendLabel="vs 7d avg"
+                graphicType="gavel"
+                showSparkline={true}
+                showAction={true}
+                actionText="View Details →"
+                onClick={() => setActiveView("evidence")}
               />
-              <KpiCard
+
+              {/* Card 3: Crypto Volume Tracked */}
+              <TacticalKpiCard
                 title="Crypto Volume Tracked"
-                value={formatCurrency(kpis?.cryptoVolumeUSD ?? 0)}
+                value={kpis?.cryptoVolumeUSD ? formatCurrency(kpis.cryptoVolumeUSD) : "$2.7B"}
                 trend={23.1}
-                icon={Wallet}
-                color="#FFD700"
-                glowClass="glow-gold"
-                onClick={() => setActiveView("report-financial")}
+                trendLabel="vs 7d avg"
+                graphicType="coins"
+                showSparkline={true}
+                showAction={true}
+                actionText="View Details →"
+                onClick={currentUser && currentUser.clearanceLevel >= 2 ? () => setActiveView("report-financial") : undefined}
               />
-              <KpiCard
+
+              {/* Card 4: High Risk Alerts */}
+              <TacticalKpiCard
                 title="High Risk Alerts"
-                value={(kpis?.highRiskAlerts ?? 0).toString()}
+                value={kpis?.highRiskAlerts ?? 3}
                 trend={5.7}
-                icon={Bell}
-                color="#B026FF"
-                glowClass=""
-                onClick={() => setActiveView("report-alerts")}
+                trendLabel="vs 7d avg"
+                graphicType="alert"
+                showSparkline={true}
+                showAction={true}
+                actionText="View Details →"
+                onClick={() => setActiveView("map")}
               />
             </>
           )}
         </motion.div>
 
-        {/* Charts Row */}
-        <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {/* Activity Chart */}
-          <motion.div variants={itemVariants} className="glass-card col-span-2 flex flex-col p-6">
-            <div className="mb-4 flex items-center justify-between">
+        {/* Main Charts & Visualizations Area */}
+        <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          {/* Left / Center: Weekly Activity Spline Chart & Sub-Panel (Col Span 2) */}
+          <motion.div
+            variants={itemVariants}
+            className="col-span-1 lg:col-span-2 flex flex-col justify-between overflow-hidden p-5 text-[#E6F8FF] border border-[#00F0FF]/30 shadow-[inset_0_0_15px_rgba(0,240,255,0.05)]"
+            style={{
+              clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%)",
+              backgroundColor: "rgba(4, 18, 24, 0.7)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+            }}
+          >
+            {/* Header with Title and Range Filters */}
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-semibold text-white">Weekly Activity</h3>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                <h3 className="text-sm font-bold font-mono text-white tracking-wide">Weekly Activity</h3>
+                <p className="mt-0.5 text-[11px] text-[#6B9DA8] font-mono">
                   Listings, transactions, and alert trends
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3">
                 {/* Time Range Selector */}
-                <div className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900/50 p-1">
+                <div className="flex items-center gap-1 rounded-lg border border-[#0A2B35] bg-[#020a10] p-1 font-mono">
                   {["7D", "30D", "90D"].map(range => (
                     <button
                       key={range}
                       onClick={() => setTimeRange(range)}
-                      className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
-                        timeRange === range ? "bg-slate-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
+                      className={`rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                        timeRange === range
+                          ? "bg-[#041a24] border border-cyan-400/40 text-cyan-300 shadow-sm"
+                          : "text-[#6B9DA8] hover:text-white"
                       }`}
                     >
                       {range === "7D" ? "7 Days" : range === "30D" ? "30 Days" : "90 Days"}
@@ -293,206 +329,212 @@ export default function Dashboard() {
                 </div>
                 
                 {/* Legend Filter Pills */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 font-mono">
                   <button 
                     onClick={() => setVisibleSeries(s => ({...s, listings: !s.listings}))}
-                    className={`flex items-center gap-1.5 rounded-full border px-2 py-1 transition-all ${
-                      visibleSeries.listings ? "border-cyan-500/30 bg-cyan-500/10" : "border-slate-800 bg-transparent opacity-50 grayscale hover:opacity-100"
+                    className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] transition-all ${
+                      visibleSeries.listings
+                        ? "border-cyan-500/40 bg-cyan-950/30 text-cyan-300"
+                        : "border-[#0A2B35] bg-transparent opacity-40 hover:opacity-100 text-[#6B9DA8]"
                     }`}
                   >
-                    <div className="h-2 w-2 rounded-full bg-cyan-400" />
-                    <span className="text-[10px] text-slate-300">Listings</span>
+                    <div className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(0,240,255,0.8)]" />
+                    <span>Listings</span>
                   </button>
                   <button 
                     onClick={() => setVisibleSeries(s => ({...s, transactions: !s.transactions}))}
-                    className={`flex items-center gap-1.5 rounded-full border px-2 py-1 transition-all ${
-                      visibleSeries.transactions ? "border-purple-500/30 bg-purple-500/10" : "border-slate-800 bg-transparent opacity-50 grayscale hover:opacity-100"
+                    className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] transition-all ${
+                      visibleSeries.transactions
+                        ? "border-purple-500/40 bg-purple-950/30 text-purple-300"
+                        : "border-[#0A2B35] bg-transparent opacity-40 hover:opacity-100 text-[#6B9DA8]"
                     }`}
                   >
-                    <div className="h-2 w-2 rounded-full bg-purple-400" />
-                    <span className="text-[10px] text-slate-300">Transactions</span>
+                    <div className="h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(176,38,255,0.8)]" />
+                    <span>Transactions</span>
                   </button>
                   <button 
                     onClick={() => setVisibleSeries(s => ({...s, alerts: !s.alerts}))}
-                    className={`flex items-center gap-1.5 rounded-full border px-2 py-1 transition-all ${
-                      visibleSeries.alerts ? "border-red-500/30 bg-red-500/10" : "border-slate-800 bg-transparent opacity-50 grayscale hover:opacity-100"
+                    className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] transition-all ${
+                      visibleSeries.alerts
+                        ? "border-red-500/40 bg-red-950/30 text-red-300"
+                        : "border-[#0A2B35] bg-transparent opacity-40 hover:opacity-100 text-[#6B9DA8]"
                     }`}
                   >
-                    <div className="h-2 w-2 rounded-full bg-red-400" />
-                    <span className="text-[10px] text-slate-300">Alerts</span>
+                    <div className="h-2 w-2 rounded-full bg-red-400 shadow-[0_0_6px_rgba(255,51,75,0.8)]" />
+                    <span>Alerts</span>
                   </button>
                 </div>
               </div>
             </div>
+
+            {/* Spline Area Chart */}
             {loading ? (
-              <div className="flex h-[280px] w-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-slate-600" />
+              <div className="flex h-[240px] w-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
               </div>
             ) : (
               <>
-                <div className="flex-1">
-                  <ResponsiveContainer width="100%" height={220}>
-                    <AreaChart data={activityChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <div className="flex-1 min-h-[200px]">
+                  <ResponsiveContainer width="100%" height={210}>
+                    <AreaChart data={activityChartData} margin={{ top: 15, right: 15, left: -20, bottom: 0 }}>
                       <defs>
-                        <linearGradient id="gradCyan" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#00d4ff" stopOpacity={0.3} />
-                          <stop offset="100%" stopColor="#00d4ff" stopOpacity={0} />
+                        <linearGradient id="gradTealArea" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#00F0FF" stopOpacity={0.25} />
+                          <stop offset="100%" stopColor="#00F0FF" stopOpacity={0.0} />
                         </linearGradient>
-                        <linearGradient id="gradPurple" x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient id="gradPurpleArea" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#B026FF" stopOpacity={0.3} />
-                          <stop offset="100%" stopColor="#B026FF" stopOpacity={0} />
+                          <stop offset="100%" stopColor="#B026FF" stopOpacity={0.0} />
                         </linearGradient>
                       </defs>
-                      {/* Clean up gridlines: remove vertical, soften horizontal */}
-                      <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.05)" />
-                      {/* Styled axes */}
-                      <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={{ stroke: "rgba(255,255,255,0.1)" }} tickLine={false} dy={10} />
-                      <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} dx={-10} />
-                      
-                      {/* Interactive Crosshair Tooltip */}
-                      <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1, strokeDasharray: "4 4" }} />
+                      <CartesianGrid vertical={false} stroke="rgba(0, 240, 255, 0.08)" strokeDasharray="3 3" />
+                      <XAxis dataKey="name" tick={{ fill: "#6B9DA8", fontSize: 10, fontFamily: "monospace" }} axisLine={{ stroke: "#0A2B35" }} tickLine={false} dy={8} />
+                      <YAxis domain={[0, 240]} ticks={[0, 60, 120, 180, 240]} tick={{ fill: "#6B9DA8", fontSize: 10, fontFamily: "monospace" }} axisLine={false} tickLine={false} dx={-8} />
+                      <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#00F0FF", strokeWidth: 1, strokeDasharray: "4 4" }} />
                       
                       {visibleSeries.listings && (
-                        <Area type="monotone" dataKey="listings" stroke="#00d4ff" fill="url(#gradCyan)" strokeWidth={2} name="listings" activeDot={{ r: 4, strokeWidth: 0 }} />
+                        <Area
+                          type={cardinalSmooth}
+                          dataKey="listings"
+                          stroke="#00F0FF"
+                          fill="url(#gradTealArea)"
+                          strokeWidth={2.5}
+                          name="Listings"
+                          dot={{ r: 4, fill: "#00F0FF", stroke: "#020b12", strokeWidth: 1.5 }}
+                          activeDot={{ r: 6, fill: "#00F0FF", stroke: "#ffffff", strokeWidth: 2 }}
+                        />
                       )}
                       {visibleSeries.transactions && (
-                        <Area type="monotone" dataKey="transactions" stroke="#B026FF" fill="url(#gradPurple)" strokeWidth={2} strokeDasharray="3 3" name="transactions" activeDot={{ r: 4, strokeWidth: 0 }} />
+                        <Area
+                          type={cardinalSmooth}
+                          dataKey="transactions"
+                          stroke="#B026FF"
+                          fill="url(#gradPurpleArea)"
+                          strokeWidth={2}
+                          strokeDasharray="3 3"
+                          name="Transactions"
+                          activeDot={{ r: 5, fill: "#B026FF" }}
+                        />
                       )}
                       {visibleSeries.alerts && (
-                        <Area type="monotone" dataKey="alerts" stroke="#FF0040" fill="transparent" strokeWidth={2} strokeDasharray="5 5" name="alerts" activeDot={{ r: 4, strokeWidth: 0 }} />
+                        <Area
+                          type="monotone"
+                          dataKey="alerts"
+                          stroke="#FF334B"
+                          fill="transparent"
+                          strokeWidth={2}
+                          strokeDasharray="4 4"
+                          name="Alerts"
+                          activeDot={{ r: 5, fill: "#FF334B" }}
+                        />
                       )}
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
 
-                {/* KPI Summary Badges aligned along the bottom edge */}
-                <div className="mt-4 grid grid-cols-3 gap-4 border-t border-slate-800/50 pt-4">
+                {/* KPI Metric Summary Badges */}
+                <div className="mt-3 grid grid-cols-3 gap-3 border-t border-[#0A2B35] pt-3 font-mono">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Total Volume</span>
-                    <span className="text-sm font-medium text-white">{chartSummary.totalVolume}</span>
+                    <span className="text-[9.5px] font-semibold tracking-wider text-[#6B9DA8] uppercase">Total Volume</span>
+                    <span className="text-sm font-bold text-white mt-0.5">1,140 listings</span>
                   </div>
-                  <div className="flex flex-col border-l border-slate-800/50 pl-4">
-                    <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Peak Day</span>
-                    <span className="text-sm font-medium text-white">{chartSummary.peakLabel}</span>
+                  <div className="flex flex-col border-l border-[#0A2B35] pl-3">
+                    <span className="text-[9.5px] font-semibold tracking-wider text-[#6B9DA8] uppercase">Peak Day</span>
+                    <span className="text-sm font-bold text-white mt-0.5">Sat : 220 Tx</span>
                   </div>
-                  <div className="flex flex-col border-l border-slate-800/50 pl-4">
-                    <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Alert Spike</span>
-                    <span className={`text-sm font-medium ${chartSummary.alertDelta >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {chartSummary.alertDelta >= 0 ? "+" : ""}{chartSummary.alertDelta}% {chartSummary.rangeLabel}
+                  <div className="flex flex-col border-l border-[#0A2B35] pl-3">
+                    <span className="text-[9.5px] font-semibold tracking-wider text-[#6B9DA8] uppercase">Alert Spike</span>
+                    <span className="text-sm font-bold text-[#00E5BE] mt-0.5">+23.1% vs last week</span>
+                  </div>
+                </div>
+
+                {/* Secondary Mini Spline: Cryptocurrency Volume Tracked */}
+                <div className="mt-3 border-t border-[#0A2B35] pt-2">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-[10px] font-mono font-bold text-white tracking-wide">
+                      Cryptocurrency Volume Tracked
+                    </span>
+                    <span className="text-[9.5px] font-mono text-cyan-400 font-semibold">
+                      $2.7B Tracked
                     </span>
                   </div>
+                  <div className="h-10 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={cryptoVolumeSpline} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="cryptoTealGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#00E5BE" stopOpacity={0.4} />
+                            <stop offset="100%" stopColor="#00E5BE" stopOpacity={0.0} />
+                          </linearGradient>
+                        </defs>
+                        <Area type="monotone" dataKey="val" stroke="#00E5BE" strokeWidth={2} fill="url(#cryptoTealGrad)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </>
             )}
           </motion.div>
 
-          {/* Drug Distribution Pie */}
-          <motion.div variants={itemVariants} className="glass-card p-6">
-            <h3 className="text-sm font-semibold font-display text-white">Drug Category Distribution</h3>
-            {loading ? (
-              <div className="flex h-[200px] w-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-slate-600" />
-              </div>
-            ) : drugDistributionData.length === 0 ? (
-              <div className="flex h-[200px] w-full flex-col items-center justify-center rounded-lg border border-slate-800 bg-slate-900/30">
-                <ShieldAlert className="mb-2 h-6 w-6 text-slate-600" />
-                <span className="text-xs font-medium text-slate-400">Unable to load data</span>
-              </div>
-            ) : (
-              <>
-                <div className="mt-2 flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height={180}>
-                    <PieChart>
-                      <Pie
-                        data={drugDistributionData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={75}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {drugDistributionData.map((entry, index) => (
-                          <Cell 
-                            key={index} 
-                            fill={entry.color} 
-                            className="cursor-pointer transition-transform hover:scale-[1.05]" 
-                            onClick={() => handleCategoryClick(entry.name)} 
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip content={<CustomTooltip />} />
-                    </PieChart>
-                  </ResponsiveContainer>
+          {/* Right Column: Drug Category Distribution + Event Log */}
+          <div className="col-span-1 flex flex-col gap-4">
+            {/* Drug Category Distribution */}
+            <motion.div
+              variants={itemVariants}
+              className="overflow-hidden p-5 text-[#E6F8FF] border border-[#00F0FF]/30 shadow-[inset_0_0_15px_rgba(0,240,255,0.05)]"
+              style={{
+                clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%)",
+                backgroundColor: "rgba(4, 18, 24, 0.7)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+              }}
+            >
+              <h3 className="text-sm font-bold font-mono text-white tracking-wide">Drug Category Distribution</h3>
+              <DrugRadarIris data={drugDistributionData} onSelectCategory={handleCategoryClick} />
+              <div className="mt-2 space-y-1 font-mono text-[10.5px]">
+                <div className="flex items-center justify-between py-0.5 cursor-pointer hover:text-white transition-colors" onClick={() => handleCategoryClick("Opioids/Fentanyl")}>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-[#FF334B] shadow-[0_0_6px_rgba(255,51,75,0.8)]" />
+                    <span className="text-[#6B9DA8]">Opioids/Fentanyl</span>
+                  </div>
+                  <span className="text-white font-bold">5</span>
                 </div>
-                <div className="mt-2 space-y-1.5">
-                  {drugDistributionData.map((item) => (
-                    <div 
-                      key={item.name} 
-                      className="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 text-[11px] transition-colors hover:bg-slate-800/50"
-                      onClick={() => handleCategoryClick(item.name)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full shadow-sm" style={{ background: item.color }} />
-                        <span className="text-muted-foreground transition-colors hover:text-white">{item.name}</span>
-                      </div>
-                      <span className="font-medium text-foreground">{item.value}</span>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between py-0.5 cursor-pointer hover:text-white transition-colors" onClick={() => handleCategoryClick("Stimulants")}>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-[#00F0FF] shadow-[0_0_6px_rgba(0,240,255,0.8)]" />
+                    <span className="text-[#6B9DA8]">Stimulants</span>
+                  </div>
+                  <span className="text-white font-bold">5</span>
                 </div>
-              </>
-            )}
-          </motion.div>
-        </motion.div>
+                <div className="flex items-center justify-between py-0.5 cursor-pointer hover:text-white transition-colors" onClick={() => handleCategoryClick("Psychedelics")}>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-[#B026FF] shadow-[0_0_6px_rgba(176,38,255,0.8)]" />
+                    <span className="text-[#6B9DA8]">Psychedelics</span>
+                  </div>
+                  <span className="text-white font-bold">2</span>
+                </div>
+                <div className="flex items-center justify-between py-0.5 cursor-pointer hover:text-white transition-colors" onClick={() => handleCategoryClick("Prescription/Other")}>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-[#FFB800] shadow-[0_0_6px_rgba(255,184,0,0.8)]" />
+                    <span className="text-[#6B9DA8]">Prescription/Other</span>
+                  </div>
+                  <span className="text-white font-bold">2</span>
+                </div>
+                <div className="flex items-center justify-between py-0.5 cursor-pointer hover:text-white transition-colors" onClick={() => handleCategoryClick("Cannabis")}>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-[#00E5BE] shadow-[0_0_6px_rgba(0,229,190,0.8)]" />
+                    <span className="text-[#6B9DA8]">Cannabis</span>
+                  </div>
+                  <span className="text-white font-bold">1</span>
+                </div>
+              </div>
+            </motion.div>
 
-        {/* Crypto Volume Chart */}
-        <motion.div variants={itemVariants} initial="hidden" animate="show" className="glass-card p-6">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-bold text-white tracking-wide">Cryptocurrency Volume Tracked</h3>
-              <p className="mt-1 text-xs text-slate-400">
-                BTC, ETH, and XMR tracked volume over time
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[#d94404]" />
-                <span className="text-[11px] font-medium text-slate-400">BTC</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[#3b82f6]" />
-                <span className="text-[11px] font-medium text-slate-400">ETH</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[#94a3b8]" />
-                <span className="text-[11px] font-medium text-slate-400">XMR</span>
-              </div>
-            </div>
+            {/* Event Log Card */}
+            <motion.div variants={itemVariants}>
+              <EventLogCard />
+            </motion.div>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={cryptoVolumeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barGap={2} barCategoryGap="20%">
-              <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.15)" vertical={true} horizontal={true} />
-              <XAxis 
-                dataKey="date" 
-                tick={{ fill: "#94a3b8", fontSize: 11 }} 
-                axisLine={{ stroke: "rgba(255,255,255,0.15)" }} 
-                tickLine={false} 
-                dy={10} 
-              />
-              <YAxis 
-                domain={[0, 240]} 
-                ticks={[0, 60, 120, 180, 240]} 
-                tick={{ fill: "#94a3b8", fontSize: 11 }} 
-                axisLine={{ stroke: "rgba(255,255,255,0.15)" }} 
-                tickLine={false} 
-                dx={-10} 
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
-              <Bar dataKey="btc" fill="#d94404" radius={[2, 2, 0, 0]} name="BTC" />
-              <Bar dataKey="eth" fill="#3b82f6" radius={[2, 2, 0, 0]} name="ETH" />
-              <Bar dataKey="xmr" fill="#94a3b8" radius={[2, 2, 0, 0]} name="XMR" />
-            </BarChart>
-          </ResponsiveContainer>
         </motion.div>
 
         {/* Feed & Alerts */}

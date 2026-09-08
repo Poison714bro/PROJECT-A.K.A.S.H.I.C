@@ -15,6 +15,7 @@ import {
   GitBranch,
   FolderOpen,
   Menu,
+  Shield,
 } from "lucide-react";
 import { alertsData, mapPinsData, graphNodesData, kanbanData } from "@/lib/mockData";
 import { getTimeAgo } from "@/lib/utils";
@@ -70,40 +71,38 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const currentUser = useAppStore((s) => s.currentUser);
   const logout = useAppStore((s) => s.logout);
+  const demoTimeoutActive = useAppStore((s) => s.demoTimeoutActive);
+  const setDemoTimeoutActive = useAppStore((s) => s.setDemoTimeoutActive);
+  const setInactivityLoggedOut = useAppStore((s) => s.setInactivityLoggedOut);
+  const updateUserClearance = useAppStore((s) => s.updateUserClearance);
 
   const markAllAsRead = () => {
     setNotificationsList((prev) => prev.map((a) => ({ ...a, acknowledged: true })));
   };
 
-  const userInitials = (currentUser?.username || "Agent Torres")
+  const userInitials = (currentUser?.username || "Admin")
     .split(" ")
     .map((p) => p[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2) || "AT";
-  const displayName = currentUser?.username || "Agent Torres";
-  const displayRole = currentUser?.role ? `${currentUser.role} (Clearance L${currentUser.clearanceLevel || 1})` : "Cyber Division Lead";
+    .slice(0, 2) || "A";
+  const displayName = currentUser?.username || "Admin";
+  const displayRole = currentUser?.role ? `${currentUser.role} (Clearance L${currentUser.clearanceLevel || 2})` : "Admin (Clearance L2)";
 
   const unreadAlerts = notificationsList.filter((a) => !a.acknowledged).length;
 
   const searchResults = useMemo(() => {
     if (!searchQuery || searchQuery.length < 2) return [];
     const q = searchQuery.toLowerCase();
-    return searchIndex.filter((item) =>
-      item.label.toLowerCase().includes(q) || item.id.toLowerCase().includes(q)
-    ).slice(0, 8);
-  }, [searchQuery]);
+    const userClearance = currentUser?.clearanceLevel || 1;
+    return searchIndex.filter((item) => {
+      const requiredClearance = item.view === "map" || item.view === "evidence" || item.view === "investigations" ? 2 : 1;
+      if (userClearance < requiredClearance) return false;
+      return item.label.toLowerCase().includes(q) || item.id.toLowerCase().includes(q);
+    }).slice(0, 8);
+  }, [searchQuery, currentUser?.clearanceLevel]);
 
-  useEffect(() => {
-    try {
-      const history = localStorage.getItem("searchHistory");
-      if (history) {
-        setSearchHistory(JSON.parse(history));
-      }
-    } catch (e) {
-      console.error("Failed to parse search history", e);
-    }
-  }, []);
+  // Search history is now memory-only to comply with zero-trust storage policies
 
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -116,13 +115,35 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
     return () => document.removeEventListener("keydown", handleGlobalKeyDown);
   }, []);
 
+  const timeoutDuration = demoTimeoutActive ? 15000 : 600000; // 15s vs 10m
+
+  // Auto-Logout for Inactivity
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        console.log(`User inactive for ${timeoutDuration}ms. Logging out.`);
+        setInactivityLoggedOut(true);
+        logout();
+      }, timeoutDuration);
+    };
+
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    events.forEach(event => document.addEventListener(event, resetTimer));
+    
+    // Initialize timer
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(event => document.removeEventListener(event, resetTimer));
+    };
+  }, [logout, timeoutDuration]);
+
   const saveSearchHistory = (newHistory: string[]) => {
     setSearchHistory(newHistory);
-    try {
-      localStorage.setItem("searchHistory", JSON.stringify(newHistory));
-    } catch (e) {
-      console.error("Failed to save search history", e);
-    }
   };
 
   const handleSearchSubmit = (query: string) => {
@@ -132,9 +153,9 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
     const uniqueHistory = [query, ...searchHistory.filter(q => q !== query)].slice(0, 5);
     saveSearchHistory(uniqueHistory);
     
-    // Mock search function
-    console.log("Executing search for:", query);
+    // Removed console.log to prevent logging potentially sensitive search queries (like PGP keys)
     setSearchFocused(false);
+    router.push(`/search?q=${encodeURIComponent(query)}`);
     searchInputRef.current?.blur();
   };
 
@@ -178,27 +199,46 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
   };
 
   return (
-    <header className="z-header flex h-16 shrink-0 items-center justify-between border-b border-border bg-[var(--header-bg)] px-4 md:px-6 backdrop-blur-md relative">
-      <div className="flex flex-1 items-center gap-3">
+    <header className="z-header flex h-14 shrink-0 items-center justify-between border-b border-[rgba(0,229,255,0.15)] bg-[#070B0E] px-3 md:px-5 backdrop-blur-md relative font-sans select-none">
+      <div className="flex flex-1 items-center gap-3 md:gap-4">
         {/* Mobile Menu Toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           aria-label="Toggle navigation menu"
-          className="md:hidden p-2 -ml-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-lg"
+          className="md:hidden p-1.5 -ml-1 text-[#6B9DA8] transition-colors hover:text-[#E6F8FF] focus-visible:ring-1 focus-visible:ring-[#00E5FF] rounded"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         </button>
+
+        {/* Project Branding */}
+        <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => setActiveView("dashboard")}>
+          <div className="flex h-8 w-8 items-center justify-center rounded bg-[#111C24] border border-[#00E5FF]/40 shadow-[0_0_10px_rgba(0,229,255,0.25)]">
+            <svg className="h-4 w-4 text-[#00E5FF] animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+              <circle cx="12" cy="12" r="3" fill="currentColor" fillOpacity="0.3" />
+              <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+            </svg>
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span className="text-xs font-black tracking-widest text-[#E6F8FF] font-mono flex items-center gap-1.5">
+              PROJECT AKASHIC
+            </span>
+            <span className="text-[9px] font-mono tracking-wider text-[#00E5FF]/80 uppercase">
+              CYBER-INTELLIGENCE & INTERDICTION PLATFORM
+            </span>
+          </div>
+        </div>
         
-        {/* Advanced Search */}
-        <div className="relative max-w-lg flex-1" ref={searchRef}>
+        {/* Omni-Search Bar */}
+        <div className="relative max-w-lg flex-1 ml-2 md:ml-4" ref={searchRef}>
           <div
-            className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all duration-200 ${
+            className={`flex items-center gap-2 rounded border px-3 py-1.5 transition-all duration-200 ${
               searchFocused
-                ? "border-primary/50 bg-slate-900/80 shadow-lg shadow-cyan-500/5"
-                : "border-border bg-slate-900/20 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
+                ? "border-[#00E5FF] bg-[#0B1218] shadow-[0_0_12px_rgba(0,229,255,0.2)]"
+                : "border-[rgba(0,229,255,0.15)] bg-[#0B1218]/90 hover:border-[#00E5FF]/40"
             }`}
           >
-            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <Search className="h-3.5 w-3.5 shrink-0 text-[#00E5FF]" />
             <input
               ref={searchInputRef}
               type="text"
@@ -206,22 +246,22 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
               onChange={(e) => onSearchChange(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onKeyDown={handleKeyDown}
-              placeholder="Search wallets, aliases, locations, case IDs..."
-              aria-label="Search intelligence entities and cases"
-              className="w-full bg-transparent text-sm text-foreground placeholder-slate-600 outline-none"
+              placeholder="Search entities, suspects, wallet addresses, cases..."
+              aria-label="Search entities, suspects, wallet addresses, cases"
+              className="w-full bg-transparent text-xs text-[#E6F8FF] placeholder-[#6B9DA8]/70 outline-none font-mono"
             />
             {searchQuery && (
               <button
                 onClick={() => onSearchChange("")}
                 aria-label="Clear search query"
-                className="text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                className="text-[#6B9DA8] hover:text-[#E6F8FF] rounded"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3 w-3" />
               </button>
             )}
-            <div className="hidden sm:flex items-center gap-1 border-l border-border pl-2">
-              <kbd className="rounded bg-slate-800/80 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-slate-700">
-                Ctrl+K
+            <div className="hidden sm:flex items-center gap-1 pl-1">
+              <kbd className="rounded bg-[#111C24] px-1.5 py-0.5 text-[9px] font-mono text-[#00E5FF]/90 border border-[rgba(0,229,255,0.2)]">
+                Ctrl-K
               </kbd>
             </div>
           </div>
@@ -300,13 +340,21 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
         </div>
       </div>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-2">
-        {/* Live Indicator */}
-        <div className="mr-2 flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1">
-          <Wifi className="h-3 w-3 text-emerald-400" />
-          <span className="text-[10px] font-medium text-emerald-400">LIVE</span>
-          <div className="live-dot" />
+      {/* Right HUD Badges & Controls */}
+      <div className="flex items-center gap-3">
+        {/* Real User Clearance Badge */}
+        <div className="hidden sm:flex items-center rounded border border-[rgba(0,229,255,0.25)] bg-[#111C24] px-2.5 py-1 text-[10px] font-mono text-[#00E5FF] shadow-[0_0_10px_rgba(0,229,255,0.12)]">
+          <span className="text-[#6B9DA8] font-bold">[</span>
+          <span className="tracking-widest font-bold mx-1">
+            CLEARANCE L{currentUser?.clearanceLevel || 1} // {currentUser?.role?.toUpperCase() || "ANALYST"}
+          </span>
+          <span className="text-[#6B9DA8] font-bold">]</span>
+        </div>
+
+        {/* Live Indicator Badge */}
+        <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-950/40 px-2.5 py-0.5 text-[10px] font-mono font-bold text-emerald-400 shadow-[0_0_10px_rgba(0,230,118,0.2)]">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+          <span>LIVE</span>
         </div>
 
         {/* Notifications */}
@@ -317,14 +365,12 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
               setShowProfile(false);
             }}
             aria-label="View notifications"
-            className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-slate-800/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="relative rounded p-1.5 text-[#6B9DA8] transition-colors hover:bg-[#111C24] hover:text-[#E6F8FF] border border-transparent hover:border-[rgba(0,229,255,0.2)]"
           >
-            <Bell className="h-[18px] w-[18px]" />
-            {unreadAlerts > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-lg shadow-red-500/30">
-                {unreadAlerts}
-              </span>
-            )}
+            <Bell className="h-4 w-4" />
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF1744] text-[9px] font-mono font-bold text-white shadow-lg shadow-red-500/40">
+              0
+            </span>
           </button>
 
           {/* Notifications Dropdown */}
@@ -396,6 +442,33 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
           )}
         </div>
 
+        {/* Clearance Level Pill & Admin Console Link */}
+        <div className="hidden sm:flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold border ${
+            currentUser?.clearanceLevel === 3
+              ? "bg-red-950/60 border-red-500/50 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+              : currentUser?.clearanceLevel === 2
+              ? "bg-amber-950/60 border-amber-500/50 text-amber-400"
+              : "bg-cyan-950/60 border-cyan-500/50 text-cyan-400"
+          }`}>
+            <span className={`h-2 w-2 rounded-full ${
+              currentUser?.clearanceLevel === 3 ? "bg-red-500 animate-ping" : currentUser?.clearanceLevel === 2 ? "bg-amber-500" : "bg-cyan-400"
+            }`} />
+            <span>L{currentUser?.clearanceLevel || 1} • {currentUser?.role?.toUpperCase() || "ANALYST"}</span>
+          </div>
+
+          {currentUser?.clearanceLevel === 3 && (
+            <button
+              onClick={() => setActiveView("admin-console")}
+              className="flex items-center gap-1.5 rounded-lg border border-red-500/40 bg-red-950/40 px-2.5 py-1 text-xs font-semibold text-red-300 hover:bg-red-900/60 transition-colors"
+              title="Open Security & Cryptographic Console"
+            >
+              <Shield className="h-3.5 w-3.5 text-red-400" />
+              <span>Console</span>
+            </button>
+          )}
+        </div>
+
         {/* Profile */}
         <div className="relative" ref={profileRef}>
           <button
@@ -417,7 +490,7 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
           </button>
 
           {showProfile && (
-            <div className="absolute right-0 top-12 z-dropdown w-56 rounded-xl border border-border bg-[var(--card)] shadow-2xl shadow-black/50">
+            <div className="absolute right-0 top-12 z-dropdown w-64 rounded-xl border border-border bg-[var(--card)] shadow-2xl shadow-black/50">
               <div className="border-b border-border p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-sm font-bold text-white">
@@ -429,7 +502,34 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
                   </div>
                 </div>
               </div>
-              <div className="p-2">
+              <div className="p-2 space-y-1">
+
+                <button 
+                  onClick={() => setDemoTimeoutActive(!demoTimeoutActive)}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-slate-800/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3.5 w-3.5" />
+                    Demo: 15s Timeout
+                  </div>
+                  <div className={`flex h-3 w-6 items-center rounded-full transition-colors ${demoTimeoutActive ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                    <div className={`h-2.5 w-2.5 rounded-full bg-white transition-transform ${demoTimeoutActive ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                  </div>
+                </button>
+
+                {currentUser?.clearanceLevel === 3 && (
+                  <button 
+                    onClick={() => {
+                      setActiveView("admin-console");
+                      setShowProfile(false);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-red-300 transition-colors hover:bg-red-950/40 hover:text-red-200"
+                  >
+                    <Shield className="h-3.5 w-3.5 text-red-400" />
+                    Security Command Console
+                  </button>
+                )}
+
                 <button 
                   onClick={() => {
                     setActiveView("dashboard");

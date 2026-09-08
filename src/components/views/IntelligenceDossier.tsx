@@ -28,6 +28,35 @@ export default function IntelligenceDossier() {
   const activeEntityId = useAppStore((s) => s.activeEntityId);
   const [dossier, setDossier] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [exporting, setExporting] = useState<boolean>(false);
+
+  const handleExport = async () => {
+    const passphrase = window.prompt("Enter a secure passphrase to encrypt the exported dossier:");
+    if (!passphrase) return;
+    
+    setExporting(true);
+    try {
+      const res = await api.intelligence.dossierExport(activeEntityId, passphrase);
+      if (res.ok && res.data) {
+        // Backend returns encrypted payload
+        const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: "application/json" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `dossier_${activeEntityId}_encrypted.json`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        alert("Export failed: " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Export failed.");
+    }
+    setExporting(false);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -155,9 +184,9 @@ export default function IntelligenceDossier() {
             </div>
 
             <div className="mt-6 flex items-center gap-3 pt-6 border-t border-border/50">
-              <button className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
+              <button onClick={handleExport} disabled={exporting} className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background disabled:opacity-50">
                 <Download className="h-3.5 w-3.5" />
-                Export PDF
+                {exporting ? "Exporting..." : "Export PDF"}
               </button>
               <button className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-foreground transition-colors hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
                 <FolderPlus className="h-3.5 w-3.5" />

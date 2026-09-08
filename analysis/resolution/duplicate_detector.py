@@ -6,6 +6,7 @@ Performs pairwise blocking and fuzzy matching across suspect pools to find merge
 
 from typing import Any, Dict, List, Optional
 from .similarity import SimilarityCalculator
+from analysis.crypto import decrypt
 
 
 class DuplicateDetector:
@@ -45,8 +46,8 @@ class DuplicateDetector:
                     candidates.append({
                         "entity_a_id": ent_a.get("id"),
                         "entity_b_id": ent_b.get("id"),
-                        "entity_a_alias": ent_a.get("primaryAlias") or ent_a.get("primary_alias") or ent_a.get("label"),
-                        "entity_b_alias": ent_b.get("primaryAlias") or ent_b.get("primary_alias") or ent_b.get("label"),
+                        "entity_a_alias": decrypt(ent_a.get("primaryAlias") or ent_a.get("primary_alias") or ent_a.get("label")),
+                        "entity_b_alias": decrypt(ent_b.get("primaryAlias") or ent_b.get("primary_alias") or ent_b.get("label")),
                         "similarity_score": sim_result["overall_similarity"],
                         "confidence_pct": sim_result["confidence_pct"],
                         "match_details": sim_result["components"],

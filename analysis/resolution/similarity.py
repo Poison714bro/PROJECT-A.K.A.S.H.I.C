@@ -6,6 +6,7 @@ and crypto/PGP exact/fuzzy matches to resolve darknet personas.
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple
+from analysis.crypto import decrypt
 
 
 class SimilarityCalculator:
@@ -131,11 +132,11 @@ class SimilarityCalculator:
         """
         Calculates composite similarity between two target profiles.
         """
-        alias_a = entity_a.get("primaryAlias") or entity_a.get("primary_alias") or entity_a.get("label", "")
-        alias_b = entity_b.get("primaryAlias") or entity_b.get("primary_alias") or entity_b.get("label", "")
+        alias_a = decrypt(entity_a.get("primaryAlias") or entity_a.get("primary_alias") or entity_a.get("label", ""))
+        alias_b = decrypt(entity_b.get("primaryAlias") or entity_b.get("primary_alias") or entity_b.get("label", ""))
 
-        known_a = set(entity_a.get("known_aliases", []) + [alias_a])
-        known_b = set(entity_b.get("known_aliases", []) + [alias_b])
+        known_a = set([decrypt(a) for a in entity_a.get("known_aliases", [])] + [alias_a])
+        known_b = set([decrypt(a) for a in entity_b.get("known_aliases", [])] + [alias_b])
 
         # Maximum alias similarity
         max_string_sim = 0.0
@@ -149,13 +150,13 @@ class SimilarityCalculator:
                         best_pair = (a, b)
 
         # Wallet address overlap
-        wallets_a = set(entity_a.get("linked_wallets", []) or [w.get("address") for w in entity_a.get("cryptoWallets", []) if isinstance(w, dict)])
-        wallets_b = set(entity_b.get("linked_wallets", []) or [w.get("address") for w in entity_b.get("cryptoWallets", []) if isinstance(w, dict)])
+        wallets_a = set(decrypt(w) for w in (entity_a.get("linked_wallets", []) or [w.get("address") for w in entity_a.get("cryptoWallets", []) if isinstance(w, dict)]))
+        wallets_b = set(decrypt(w) for w in (entity_b.get("linked_wallets", []) or [w.get("address") for w in entity_b.get("cryptoWallets", []) if isinstance(w, dict)]))
         wallet_sim = 1.0 if wallets_a.intersection(wallets_b) else 0.0
 
         # PGP Key comparison
-        pgp_a = entity_a.get("pgp_fingerprint") or entity_a.get("pgpFingerprint")
-        pgp_b = entity_b.get("pgp_fingerprint") or entity_b.get("pgpFingerprint")
+        pgp_a = decrypt(entity_a.get("pgp_fingerprint") or entity_a.get("pgpFingerprint"))
+        pgp_b = decrypt(entity_b.get("pgp_fingerprint") or entity_b.get("pgpFingerprint"))
         pgp_sim = 1.0 if (pgp_a and pgp_b and pgp_a.lower() == pgp_b.lower()) else 0.0
 
         # Category/Role match

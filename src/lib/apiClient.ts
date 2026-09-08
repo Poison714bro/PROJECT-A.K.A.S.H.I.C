@@ -331,10 +331,7 @@ async function request<T>(
       "Content-Type": "application/json",
     };
 
-    const token = _getToken ? _getToken() : null;
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+    // JWT token logic removed in favor of zero-trust HttpOnly JWE cookies
 
     const res = await fetch(url, {
       method,
@@ -471,8 +468,8 @@ export const api = {
       }) => request<any>("POST", "/intelligence/audit", body),
     },
 
-    dossierExport: (targetId: string) =>
-      request<any>("POST", "/intelligence/dossier", { targetId }),
+    dossierExport: (targetId: string, passphrase?: string) =>
+      request<any>("POST", "/intelligence/dossier", { targetId, passphrase }),
 
     extractTriplets: (text: string) =>
       request<any>("POST", "/intelligence/triplets", { text }),
@@ -507,6 +504,20 @@ export const api = {
   ingest: {
     pipeline: (text: string, source?: string) =>
       request<any>("POST", "/ingest/pipeline", { text, source }),
+  },
+
+  // ── Scraper (Scrapling Web Harvester) ──
+  scraper: {
+    harvest: (payload: {
+      url: string;
+      fetcher_type?: "static" | "dynamic" | "stealthy";
+      item_selector?: string;
+      field_selectors?: Record<string, string>;
+      timeout?: number;
+      allow_private_ips?: boolean;
+    }) => request<any>("POST", "/scraper", payload),
+
+    status: () => request<any>("GET", "/scraper"),
   },
 
   // ── Tracker ──
