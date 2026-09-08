@@ -17,6 +17,7 @@ import {
   Menu,
   Shield,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { alertsData, mapPinsData, graphNodesData, kanbanData } from "@/lib/mockData";
 import { getTimeAgo } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
