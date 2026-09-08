@@ -131,7 +131,6 @@ export async function GET(request: Request) {
     const limitParam = searchParams.get('limit');
     const limit = limitParam ? parseInt(limitParam) : 150;
 
-    // Pull a slice of high-risk entities to keep the graph readable
     const entities = await prisma.intelEntity.findMany({
       orderBy: { riskScore: 'desc' },
       take: limit
@@ -194,5 +193,7 @@ export async function GET(request: Request) {
       success: true,
       data: FALLBACK_NETWORK_DATA
     });
+    console.error("[/api/v1/network/default] Prisma query failed:", error);
+    return NextResponse.json({ success: false, error: { message: error.message } }, { status: 500 });
   }
 }
