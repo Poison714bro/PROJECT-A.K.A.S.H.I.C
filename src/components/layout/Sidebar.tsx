@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ViewType } from "@/app/page";
 import {
   LayoutDashboard,
@@ -12,42 +12,20 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  Activity,
-  Fingerprint,
-  Filter,
-  RotateCcw,
-  Users,
-  Radar,
-  Pill,
-  Leaf,
-  Syringe,
-  Microscope,
-  Globe,
-  Lock,
-  Monitor,
-  Bitcoin,
   LogOut,
+  Sliders,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
-import { navItems, drugCategories, sourceStreams, suspectRoles } from "@/lib/constants";
+import { navItems, drugCategories, sourceStreams } from "@/lib/constants";
 
 interface SidebarProps {
   activeView: ViewType;
   onViewChange: (view: ViewType) => void;
 }
 
-export default function Sidebar({ activeView, onViewChange, threatLevel = "ELEVATED" }: SidebarProps & { threatLevel?: string }) {
+export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [scrapeTime, setScrapeTime] = useState(14);
-
-  // Scrape cycle interval
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setScrapeTime((prev) => prev + 1);
-    }, 60000);
-    return () => clearInterval(timer);
-  }, []);
+  const [filtersOpen, setFiltersOpen] = useState(true);
 
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
@@ -55,319 +33,209 @@ export default function Sidebar({ activeView, onViewChange, threatLevel = "ELEVA
   const filters = useAppStore((s) => s.filters);
   const toggleDrugCategory = useAppStore((s) => s.toggleDrugCategory);
   const toggleSourceStream = useAppStore((s) => s.toggleSourceStream);
-  const setOnlyDrugCategory = useAppStore((s) => s.setOnlyDrugCategory);
-  const setOnlySourceStream = useAppStore((s) => s.setOnlySourceStream);
-  const setRiskRange = useAppStore((s) => s.setRiskRange);
-  const toggleSuspectRole = useAppStore((s) => s.toggleSuspectRole);
-  const resetFilters = useAppStore((s) => s.resetFilters);
 
   const currentUser = useAppStore((s) => s.currentUser);
   const logout = useAppStore((s) => s.logout);
-  const userClearance = currentUser?.clearanceLevel || 0;
-
-  const filteredNavItems = navItems.filter((item) => userClearance >= item.clearance);
+  const userClearance = currentUser?.clearanceLevel || 3;
 
   return (
     <>
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-backdrop bg-black/70 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-backdrop bg-black/75 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
+
       <aside
-        className={`z-[80] md:z-sidebar absolute inset-y-0 left-0 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col border-r border-border bg-[var(--sidebar-bg)] ${
+        className={`z-[80] md:z-sidebar absolute inset-y-0 left-0 transform transition-all duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col border-r border-[rgba(0,229,255,0.15)] bg-[#070B0E] select-none ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } ${collapsed ? "md:w-[68px] w-[260px]" : "w-[260px]"}`}
+        } ${collapsed ? "md:w-[60px] w-[260px]" : "w-[260px]"}`}
       >
-        {/* Logo */}
-      <div className="flex h-16 items-center gap-3 border-b border-border px-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20">
-          <Fingerprint className="h-5 w-5 text-white" />
-        </div>
-        {!collapsed && (
-          <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-bold tracking-wider text-primary text-glow-cyan">
-              A.K.A.S.H.I.C.
-            </span>
-            <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Cyber Forensics
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav className="space-y-1 p-3" role="navigation" aria-label="Main Navigation">
-        <div className={`mb-3 ${collapsed ? "px-0" : "px-2"}`}>
+        {/* Top Header Controls / Collapse Toggle */}
+        <div className="flex h-12 items-center justify-between border-b border-[rgba(0,229,255,0.12)] px-3">
           {!collapsed && (
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-600">
-              Operations
-            </span>
+            <div className="flex items-center gap-2 overflow-hidden">
+              <span className="h-2 w-2 rounded-full bg-[#00E5FF] shadow-[0_0_8px_#00E5FF]" />
+              <span className="text-[10px] font-mono font-bold tracking-widest text-[#00E5FF] uppercase truncate">
+                INTEL OPERATIONS
+              </span>
+            </div>
           )}
-        </div>
-        {filteredNavItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeView === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => {
-                onViewChange(item.id);
-                setSidebarOpen(false); // Close mobile sidebar on navigation
-              }}
-              aria-label={item.label}
-              aria-current={isActive ? "page" : undefined}
-              className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
-                isActive
-                  ? "bg-cyan-500/10 text-primary shadow-inner shadow-cyan-500/5 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:rounded-r before:bg-primary before:shadow-[0_0_8px_rgba(0,212,255,0.8)]"
-                  : "text-muted-foreground hover:bg-slate-800/50 hover:text-foreground"
-              } ${collapsed ? "md:justify-center" : ""}`}
-              title={collapsed ? item.label : undefined}
-            >
-              <Icon
-                className={`h-[16px] w-[16px] shrink-0 transition-colors ${
-                  isActive ? "text-cyan-400 fill-cyan-400/20" : "text-muted-foreground group-hover:text-foreground"
-                }`}
-              />
-              {!collapsed && <span>{item.label}</span>}
-            </button>
-          );
-        })}
-
-        {/* Intelligence Streams (Categories & Sources) */}
-        <div className={`mt-4 mb-2 ${collapsed ? "px-0" : "px-2"}`}>
-          {!collapsed && (
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-600">
-              Drug Categories
-            </span>
-          )}
-        </div>
-        {drugCategories.map((cat) => {
-          const Icon = cat.icon;
-          const isActive = filters.drugCategories.has(cat.name);
-          return (
-            <button
-              key={cat.name}
-              onClick={() => toggleDrugCategory(cat.name)}
-              className={`group flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
-                isActive ? "bg-slate-800/50" : "hover:bg-slate-800/30"
-              } ${collapsed ? "justify-center" : ""}`}
-              title={collapsed ? cat.name : undefined}
-            >
-              <Icon
-                className="h-4 w-4 shrink-0 transition-colors"
-                style={{ color: isActive ? cat.color : `${cat.color}80` }}
-              />
-              {!collapsed && (
-                <span style={{ color: isActive ? cat.color : "#94a3b8" }} className="transition-colors group-hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
-                  {cat.name}
-                </span>
-              )}
-            </button>
-          );
-        })}
-
-        <div className={`mt-4 mb-2 ${collapsed ? "px-0" : "px-2"}`}>
-          {!collapsed && (
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-600">
-              Source Streams
-            </span>
-          )}
-        </div>
-        {sourceStreams.map((source) => {
-          const Icon = source.icon;
-          const isActive = filters.sourceStreams.has(source.name);
-          return (
-            <button
-              key={source.name}
-              onClick={() => toggleSourceStream(source.name)}
-              className={`group flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
-                isActive ? "bg-slate-800/50" : "hover:bg-slate-800/30"
-              } ${collapsed ? "justify-center" : ""}`}
-              title={collapsed ? source.name : undefined}
-            >
-              <Icon
-                className="h-4 w-4 shrink-0 transition-colors"
-                style={{ color: isActive ? source.color : `${source.color}80` }}
-              />
-              {!collapsed && (
-                <span style={{ color: isActive ? source.color : "#94a3b8" }} className="transition-colors group-hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
-                  {source.name}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Filters Section */}
-      {!collapsed && (
-        <div className="border-t border-border px-3 pt-2">
           <button
-            onClick={() => setFiltersOpen(!filtersOpen)}
-            className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-xs text-muted-foreground transition-colors hover:bg-slate-800/50 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background"
+            onClick={() => setCollapsed(!collapsed)}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="flex h-6 w-6 items-center justify-center rounded border border-[rgba(0,229,255,0.2)] bg-[#111C24] text-[#6B9DA8] transition-colors hover:border-[#00E5FF] hover:text-[#00E5FF] focus:outline-none"
           >
-            <div className="flex items-center gap-2">
-              <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="font-semibold uppercase tracking-wider text-muted-foreground" style={{ fontSize: "10px" }}>Filters</span>
-            </div>
-            <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${filtersOpen ? "rotate-180" : ""}`} />
+            {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
           </button>
+        </div>
 
-          {filtersOpen && (
-            <div className="mt-1 space-y-3 pb-3">
-              {/* Risk Range */}
-              <div className="px-1">
-                <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-slate-600">
-                  Risk Score: {filters.riskRange[0]}–{filters.riskRange[1]}
-                </p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={filters.riskRange[0]}
-                    onChange={(e) =>
-                      setRiskRange([
-                        Math.min(parseInt(e.target.value), filters.riskRange[1]),
-                        filters.riskRange[1],
-                      ])
-                    }
-                    className="h-1 w-full cursor-pointer appearance-none rounded-full bg-slate-700 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cyan-400"
+        {/* Navigation & Filters Area */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-4 custom-scrollbar">
+          {/* Tactical Navigation Nav Items */}
+          <nav className="space-y-0.5" role="navigation" aria-label="Tactical Navigation">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onViewChange(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  aria-label={item.label}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`group relative flex w-full items-center gap-2.5 rounded px-2.5 py-1.5 text-xs font-mono transition-all duration-150 ${
+                    isActive
+                      ? "bg-[#16232D] border border-[#00E5FF] text-[#E6F8FF] shadow-[0_0_12px_rgba(0,229,255,0.25)] before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-[#00E5FF] before:shadow-[0_0_6px_#00E5FF]"
+                      : "text-[#6B9DA8] hover:bg-[#111C24] hover:text-[#E6F8FF] border border-transparent hover:border-[rgba(0,229,255,0.12)]"
+                  } ${collapsed ? "justify-center px-0" : ""}`}
+                  title={collapsed ? item.label : undefined}
+                >
+                  <Icon
+                    className={`h-3.5 w-3.5 shrink-0 transition-colors ${
+                      isActive ? "text-[#00E5FF]" : "text-[#6B9DA8] group-hover:text-[#E6F8FF]"
+                    }`}
                   />
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={filters.riskRange[1]}
-                    onChange={(e) =>
-                      setRiskRange([
-                        filters.riskRange[0],
-                        Math.max(parseInt(e.target.value), filters.riskRange[0]),
-                      ])
-                    }
-                    className="h-1 w-full cursor-pointer appearance-none rounded-full bg-slate-700 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-400"
-                  />
-                </div>
+                  {!collapsed && (
+                    <span className="truncate tracking-wide text-[11px] font-medium">
+                      {item.label}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Section: Target Classifications (Drug / Contraband Categories) */}
+          {!collapsed && (
+            <div className="pt-2 border-t border-[rgba(0,229,255,0.1)]">
+              <div className="px-2 pb-1.5">
+                <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#6B9DA8]/80">
+                  TARGET CLASSIFICATIONS
+                </span>
               </div>
-
-              {/* Suspect Role */}
-              <div className="px-1">
-                <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-slate-600">Suspect Role</p>
-                <div className="flex flex-wrap gap-1">
-                  {suspectRoles.map((role) => (
+              <div className="space-y-1">
+                {drugCategories.map((cat) => {
+                  const Icon = cat.icon;
+                  const isFilterActive = filters.drugCategories.has(cat.name);
+                  return (
                     <button
-                      key={role.name}
-                      onClick={() => toggleSuspectRole(role.name)}
-                      className={`rounded-full border px-2 py-0.5 text-[9px] font-medium transition-all ${
-                        filters.suspectRoles.has(role.name)
-                          ? ""
-                          : "opacity-40"
+                      key={cat.name}
+                      onClick={() => toggleDrugCategory(cat.name)}
+                      className={`flex w-full items-center justify-between rounded px-2 py-1 text-[11px] font-mono transition-colors border ${
+                        isFilterActive
+                          ? "bg-[#111C24] border-[rgba(0,229,255,0.25)] text-[#E6F8FF]"
+                          : "border-transparent text-[#6B9DA8]/60 hover:text-[#6B9DA8] hover:bg-[#0B1218]"
                       }`}
-                      style={{
-                        borderColor: `${role.color}40`,
-                        background: filters.suspectRoles.has(role.name) ? `${role.color}15` : "transparent",
-                        color: role.color,
-                      }}
                     >
-                      {role.label}
+                      <div className="flex items-center gap-2 truncate">
+                        <span
+                          className="h-1.5 w-1.5 rounded-full"
+                          style={{
+                            backgroundColor: isFilterActive ? cat.color : "#475569",
+                            boxShadow: isFilterActive ? `0 0 6px ${cat.color}` : "none",
+                          }}
+                        />
+                        <span className="truncate">{cat.name}</span>
+                      </div>
+                      <Icon className="h-3 w-3 shrink-0 opacity-60" />
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
+            </div>
+          )}
 
-              {/* Reset */}
+          {/* Section: Source Streams */}
+          {!collapsed && (
+            <div className="pt-2 border-t border-[rgba(0,229,255,0.1)]">
               <button
-                onClick={resetFilters}
-                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border py-1.5 text-[10px] text-muted-foreground transition-colors hover:bg-slate-800/50 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background"
+                onClick={() => setFiltersOpen(!filtersOpen)}
+                className="flex w-full items-center justify-between px-2 pb-1.5 text-[9px] font-mono font-bold uppercase tracking-wider text-[#6B9DA8]/80 hover:text-[#00E5FF] transition-colors"
               >
-                <RotateCcw className="h-3 w-3" />
-                Reset Filters
+                <span className="flex items-center gap-1.5">
+                  <Sliders className="h-2.5 w-2.5 text-[#00E5FF]" />
+                  SOURCE STREAMS
+                </span>
+                <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 ${filtersOpen ? "rotate-180" : ""}`} />
               </button>
+
+              {filtersOpen && (
+                <div className="space-y-1">
+                  {sourceStreams.map((stream) => {
+                    const Icon = stream.icon;
+                    const isStreamActive = filters.sourceStreams.has(stream.name);
+                    return (
+                      <button
+                        key={stream.name}
+                        onClick={() => toggleSourceStream(stream.name)}
+                        className={`flex w-full items-center justify-between rounded px-2 py-1 text-[10.5px] font-mono transition-colors border ${
+                          isStreamActive
+                            ? "bg-[#111C24] border-[rgba(0,229,255,0.2)] text-[#E6F8FF]"
+                            : "border-transparent text-[#6B9DA8]/50 hover:text-[#6B9DA8] hover:bg-[#0B1218]"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0 pr-1">
+                          <Icon className={`h-3 w-3 shrink-0 ${isStreamActive ? "text-emerald-400" : "text-[#6B9DA8]/40"}`} />
+                          <span className="truncate">{stream.name}</span>
+                        </div>
+                        <span
+                          className={`text-[8.5px] shrink-0 font-mono font-bold flex items-center gap-1 ${
+                            isStreamActive ? "text-emerald-400" : "text-[#6B9DA8]/50"
+                          }`}
+                        >
+                          {isStreamActive && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                          {isStreamActive ? "ACTIVE" : "MUTED"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
 
-      {/* System Status — pushed to bottom */}
-      <div className="mt-auto space-y-2 border-t border-border p-3">
-        {!collapsed && (
-          <div className="rounded-lg bg-slate-900/50 p-3">
-            <div className="mb-2 flex items-center gap-2">
-              <Activity className="h-3.5 w-3.5 text-emerald-400" />
-              <span className="text-[11px] font-medium text-emerald-400">System Online</span>
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="text-muted-foreground">Data Feeds</span>
-                <span className="text-emerald-400">12 Active</span>
-              </div>
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="text-muted-foreground">Scrape Cycle</span>
-                <span className="text-foreground">{scrapeTime}m ago</span>
-              </div>
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="text-muted-foreground">Threat Level</span>
-                <span className={`font-semibold ${
-                  threatLevel.toUpperCase() === "ELEVATED" ? "text-orange-400" :
-                  threatLevel.toUpperCase() === "CRITICAL" ? "text-red-400" :
-                  "text-emerald-400"
-                }`}>
-                  {threatLevel.toUpperCase()}
+        {/* Footer Quick Controls */}
+        <div className="mt-auto border-t border-[rgba(0,229,255,0.12)] p-2 space-y-1">
+          <button
+            className={`flex w-full items-center gap-2 rounded px-2 py-1 text-xs font-mono text-[#6B9DA8] transition-colors hover:bg-[#111C24] hover:text-[#E6F8FF] ${
+              collapsed ? "justify-center" : ""
+            }`}
+          >
+            <Settings className="h-3.5 w-3.5" />
+            {!collapsed && <span className="text-[11px]">Settings</span>}
+          </button>
+
+          <button
+            onClick={() => logout()}
+            className={`flex w-full items-center gap-2 rounded px-2 py-1 text-xs font-mono text-[#FF1744]/80 transition-colors hover:bg-[#FF1744]/10 hover:text-[#FF1744] ${
+              collapsed ? "justify-center" : ""
+            }`}
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            {!collapsed && <span className="text-[11px]">Secure Logout</span>}
+          </button>
+
+          {/* Clearance Footer Badge */}
+          {!collapsed && (
+            <div className="mt-1 rounded border border-[rgba(0,229,255,0.25)] bg-[#111C24] px-2.5 py-1.5 flex items-center gap-2 shadow-[0_0_8px_rgba(0,229,255,0.1)]">
+              <Shield className="h-3.5 w-3.5 text-[#00E5FF]" />
+              <div className="flex flex-col">
+                <span className="text-[10px] font-mono font-bold text-[#E6F8FF]">
+                  Level {userClearance} Clearance
+                </span>
+                <span className="text-[9px] font-mono text-[#6B9DA8]">
+                  {currentUser?.role || "Admin"} Access
                 </span>
               </div>
             </div>
-          </div>
-        )}
-        <div className="flex flex-col gap-1 px-1">
-          {userClearance >= 3 && (
-            <button className={`flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-slate-800/50 hover:text-foreground ${collapsed ? "w-full justify-center" : ""}`}>
-              <Settings className="h-4 w-4" />
-              {!collapsed && <span className="text-xs">Settings</span>}
-            </button>
           )}
-          <button onClick={() => logout()} className={`flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-red-400/80 transition-colors hover:bg-red-500/10 hover:text-red-400 ${collapsed ? "w-full justify-center" : ""}`}>
-            <LogOut className="h-4 w-4" />
-            {!collapsed && <span className="text-xs">Secure Logout</span>}
-          </button>
         </div>
-      </div>
-
-      {/* Collapse Toggle (Desktop Only) */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="hidden md:flex absolute -right-3 top-20 z-10 h-6 w-6 items-center justify-center rounded-full border border-border bg-[var(--sidebar-bg)] text-muted-foreground transition-colors hover:bg-slate-800 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background"
-      >
-        {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-      </button>
-
-      {/* Security Level Badge */}
-      {!collapsed && currentUser && (
-        <div className="border-t border-border p-3">
-          <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${
-            userClearance === 3 ? "border-amber-500/20 bg-amber-500/5" :
-            userClearance === 2 ? "border-cyan-500/20 bg-cyan-500/5" :
-            "border-emerald-500/20 bg-emerald-500/5"
-          }`}>
-            <Shield className={`h-3.5 w-3.5 ${
-              userClearance === 3 ? "text-amber-400" :
-              userClearance === 2 ? "text-cyan-400" :
-              "text-emerald-400"
-            }`} />
-            <div className="flex flex-col">
-              <span className={`text-[10px] font-medium ${
-                userClearance === 3 ? "text-amber-400" :
-                userClearance === 2 ? "text-cyan-400" :
-                "text-emerald-400"
-              }`}>Level {userClearance} Clearance</span>
-              <span className="text-[9px] text-muted-foreground">{currentUser.role} Access</span>
-            </div>
-          </div>
-        </div>
-      )}
       </aside>
     </>
   );

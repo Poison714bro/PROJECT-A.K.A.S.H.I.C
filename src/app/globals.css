@@ -6,23 +6,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --background: #0a0e17;
-  --foreground: #e2e8f0;
-  --card: #111827;
-  --card-foreground: #e2e8f0;
-  --border: #1e293b;
-  --muted: #1e293b;
-  --muted-foreground: #64748b;
-  --accent: #0ea5e9;
-  --accent-foreground: #e2e8f0;
-  --primary: #00d4ff;
-  --primary-foreground: #0a0e17;
-  --destructive: #ff0040;
-  --ring: #0ea5e9;
-  --sidebar-bg: #0d1117;
-  --header-bg: rgba(13, 17, 23, 0.85);
-  --glass-bg: rgba(17, 24, 39, 0.6);
-  --glass-border: rgba(30, 41, 59, 0.5);
+  --background: #070B0E;
+  --background-secondary: #0B1218;
+  --foreground: #E6F8FF;
+  --card: #111C24;
+  --card-secondary: #16232D;
+  --card-foreground: #E6F8FF;
+  --border: rgba(0, 229, 255, 0.15);
+  --border-muted: #1A2B38;
+  --muted: #0D161F;
+  --muted-foreground: #6B9DA8;
+  --accent: #00E5FF;
+  --accent-secondary: #00B4D8;
+  --accent-foreground: #070B0E;
+  --primary: #00E5FF;
+  --primary-foreground: #070B0E;
+  --status-live: #00E676;
+  --status-warn: #FFB300;
+  --status-critical: #FF1744;
+  --destructive: #FF1744;
+  --warning: #FFB300;
+  --ring: #00E5FF;
+  --sidebar-bg: #070B0E;
+  --header-bg: #070B0E;
+  --glass-bg: rgba(17, 28, 36, 0.85);
+  --glass-border: rgba(0, 229, 255, 0.18);
 }
 
 * {
@@ -106,12 +114,77 @@ body {
   text-shadow: 0 0 10px rgba(255, 0, 64, 0.5);
 }
 
+/* Tactical HUD Utilities */
+.hud-chamfer {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+}
+
+.tactical-panel {
+  background: #111C24;
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 4px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tactical-panel:hover {
+  border-color: rgba(0, 229, 255, 0.28);
+}
+
+.tactical-panel-active {
+  background: #16232D;
+  border: 1px solid #00E5FF;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.18), inset 0 0 8px rgba(0, 229, 255, 0.05);
+}
+
+.hud-panel {
+  background: #111C24;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  box-shadow: inset 0 0 15px rgba(0, 229, 255, 0.04);
+  border-radius: 4px;
+}
+
+.glow-hud-cyan {
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25), 0 0 24px rgba(0, 229, 255, 0.08);
+}
+
+.text-hud-cyan {
+  color: #00E5FF;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+.text-hud-success {
+  color: #00E676;
+  text-shadow: 0 0 8px rgba(0, 230, 118, 0.5);
+}
+
+.text-hud-warn {
+  color: #FFB300;
+  text-shadow: 0 0 8px rgba(255, 179, 0, 0.5);
+}
+
+.text-hud-alert {
+  color: #FF1744;
+  text-shadow: 0 0 8px rgba(255, 23, 68, 0.5);
+}
+
+/* Faint grid / scanline pattern */
+.tactical-grid {
+  background-color: #070B0E;
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
 /* Grid background pattern */
 .grid-bg {
+  background-color: #000000;
   background-image:
-    linear-gradient(rgba(30, 41, 59, 0.3) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(rgba(10, 43, 53, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 43, 53, 0.3) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 /* Scan line animation overlay */

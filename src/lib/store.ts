@@ -20,6 +20,7 @@ export interface User {
   role: "Agent" | "Analyst" | "Admin";
 }
 
+
 export interface AppState {
   // Auth state
   isAuthenticated: boolean;

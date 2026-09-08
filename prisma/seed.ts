@@ -1,7 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import { mockIntelligenceData } from '../src/lib/mockIntelligenceData'
+import { mapPinsData } from '../src/lib/mockData'
 import fs from 'fs'
 import path from 'path'
+
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'file:./dev.db';
+}
 
 const prisma = new PrismaClient()
 
@@ -107,6 +112,38 @@ async function main() {
     } catch(e) {}
   }
   console.log('Map Incidents seeded.')
+
+  for (const pin of mapPinsData) {
+    try {
+      await prisma.mapIncident.upsert({
+        where: { id: pin.id },
+        update: {
+          lat: pin.lat,
+          lng: pin.lng,
+          label: `${pin.label}, India`,
+          details: pin.details,
+          drugCategory: pin.drugCategory,
+          riskScore: pin.riskScore,
+          date: new Date(`${pin.date}T12:00:00.000Z`),
+          originRoute: JSON.stringify(pin.originRoute || []),
+        },
+        create: {
+          id: pin.id,
+          lat: pin.lat,
+          lng: pin.lng,
+          label: `${pin.label}, India`,
+          details: pin.details,
+          drugCategory: pin.drugCategory,
+          riskScore: pin.riskScore,
+          date: new Date(`${pin.date}T12:00:00.000Z`),
+          originRoute: JSON.stringify(pin.originRoute || []),
+        }
+      })
+    } catch(e: any) {
+      console.error(`Error seeding pin ${pin.id}:`, e.message);
+    }
+  }
+  console.log('India Map Pins seeded.')
 
   // Read OSINT data
   const osintPath = path.join(__dirname, 'osint_data.json')

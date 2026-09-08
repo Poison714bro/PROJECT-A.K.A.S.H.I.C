@@ -15,18 +15,18 @@ import {
   Bitcoin,
   Lock,
   Monitor,
-  Sparkles,
 } from "lucide-react";
 import type { ViewType } from "@/app/page";
 
 export const navItems: { id: ViewType; label: string; icon: React.ElementType; clearance: number }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, clearance: 1 },
-  { id: "map", label: "Geo-Intel Map", icon: Map, clearance: 1 },
+  { id: "map", label: "Incident Map", icon: Map, clearance: 1 },
   { id: "evidence", label: "Evidence Graph", icon: GitBranch, clearance: 2 },
-  { id: "investigations", label: "Investigations", icon: Search, clearance: 2 },
-  { id: "entity-resolution", label: "Entity Resolution", icon: Users, clearance: 2 },
-  { id: "timeline-reconstructor", label: "Timeline Engine", icon: Activity, clearance: 2 },
-  { id: "movement-tracker", label: "Pattern of Life", icon: Radar, clearance: 2 },
+  { id: "timeline-reconstructor", label: "Timeline Reconstructor", icon: Activity, clearance: 2 },
+  { id: "movement-tracker", label: "Movement Tracker", icon: Radar, clearance: 2 },
+  { id: "investigations", label: "Investigations", icon: Users, clearance: 2 },
+  { id: "entity-resolution", label: "Entity Resolution", icon: Search, clearance: 2 },
+  { id: "scraper", label: "Ingestion / Scraper", icon: Globe, clearance: 1 },
 ];
 
 export const drugCategories = [
