@@ -17,16 +17,17 @@ import ReportFinancial from "@/components/views/ReportFinancial";
 import ReportAlerts from "@/components/views/ReportAlerts";
 import LoginView from "@/components/views/LoginView";
 import UnauthorizedView from "@/components/views/UnauthorizedView";
+import AdminConsole from "@/components/views/AdminConsole";
 import { useAppStore } from "@/lib/store";
 
-export type ViewType = "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts";
+export type ViewType = "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts" | "admin-console";
 
 // Define clearance requirements for each view
 const VIEW_CLEARANCE_REQUIREMENTS: Record<ViewType, number> = {
   "dashboard": 1,
   "report-alerts": 1,
   "report-listings": 1,
-  "map": 1, // Let's give level 1 access to the map
+  "map": 2, // Tactical operations require Level 2
   "evidence": 2,
   "entity-resolution": 2,
   "timeline-reconstructor": 2,
@@ -35,6 +36,7 @@ const VIEW_CLEARANCE_REQUIREMENTS: Record<ViewType, number> = {
   "report-investigations": 2,
   "report-financial": 2,
   "dossier": 2,
+  "admin-console": 3, // System Administration requires Level 3
 };
 
 export default function Home() {
@@ -45,17 +47,24 @@ export default function Home() {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const currentUser = useAppStore((s) => s.currentUser);
 
-  if (!isAuthenticated) {
-    return <LoginView />;
-  }
-
   // Check if current user has clearance for the active view
   const requiredClearance = VIEW_CLEARANCE_REQUIREMENTS[activeView] || 3;
   const hasClearance = (currentUser?.clearanceLevel || 0) >= requiredClearance;
 
+  // Enforce zero-trust boundary: revert to dashboard if attempting to access forbidden views
+  useEffect(() => {
+    if (isAuthenticated && !hasClearance) {
+      setActiveView("dashboard");
+    }
+  }, [isAuthenticated, hasClearance, setActiveView]);
+
+  if (!isAuthenticated) {
+    return <LoginView />;
+  }
+
   const renderView = () => {
     if (!hasClearance) {
-      return <UnauthorizedView />;
+      return <UnauthorizedView requiredClearance={requiredClearance} />;
     }
 
     switch (activeView) {
@@ -71,6 +80,7 @@ export default function Home() {
       case "report-listings": return <ReportListings />;
       case "report-financial": return <ReportFinancial />;
       case "report-alerts": return <ReportAlerts />;
+      case "admin-console": return <AdminConsole />;
       default: return <Dashboard />;
     }
   };

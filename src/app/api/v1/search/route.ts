@@ -25,6 +25,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, data: results });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: { message: error.message } }, { status: 500 });
+    return NextResponse.json({ success: false, error: { message: "Internal Server Error" } }, { status: 500 });
   }
 }

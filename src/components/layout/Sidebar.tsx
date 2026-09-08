@@ -63,9 +63,7 @@ export default function Sidebar({ activeView, onViewChange, threatLevel = "ELEVA
 
   const currentUser = useAppStore((s) => s.currentUser);
   const logout = useAppStore((s) => s.logout);
-  const userClearance = currentUser?.clearanceLevel || 0;
-
-  const filteredNavItems = navItems.filter((item) => userClearance >= item.clearance);
+  const userClearance = currentUser?.clearanceLevel || 1;
 
   return (
     <>
@@ -81,18 +79,29 @@ export default function Sidebar({ activeView, onViewChange, threatLevel = "ELEVA
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "md:w-[68px] w-[260px]" : "w-[260px]"}`}
       >
-        {/* Logo */}
+        {/* Logo & Clearance Indicator */}
       <div className="flex h-16 items-center gap-3 border-b border-border px-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20">
           <Fingerprint className="h-5 w-5 text-white" />
         </div>
         {!collapsed && (
           <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-bold tracking-wider text-primary text-glow-cyan">
-              A.K.A.S.H.I.C.
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-bold tracking-wider text-primary text-glow-cyan">
+                A.K.A.S.H.I.C.
+              </span>
+              <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border ${
+                userClearance === 3
+                  ? "bg-red-950/80 border-red-500/60 text-red-400 animate-pulse"
+                  : userClearance === 2
+                  ? "bg-amber-950/80 border-amber-500/60 text-amber-400"
+                  : "bg-cyan-950/80 border-cyan-500/60 text-cyan-400"
+              }`}>
+                L{userClearance}
+              </span>
+            </div>
             <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Cyber Forensics
+              {userClearance === 3 ? "SYSADMIN // TOP SECRET" : userClearance === 2 ? "SENIOR INVESTIGATOR" : "INTELLIGENCE ANALYST"}
             </span>
           </div>
         )}
@@ -103,38 +112,51 @@ export default function Sidebar({ activeView, onViewChange, threatLevel = "ELEVA
         <div className={`mb-3 ${collapsed ? "px-0" : "px-2"}`}>
           {!collapsed && (
             <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-600">
-              Operations
+              {userClearance === 3 ? "All Operations (Full Access)" : userClearance === 2 ? "Field Operations" : "Intelligence Operations"}
             </span>
           )}
         </div>
-        {filteredNavItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeView === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => {
-                onViewChange(item.id);
-                setSidebarOpen(false); // Close mobile sidebar on navigation
-              }}
-              aria-label={item.label}
-              aria-current={isActive ? "page" : undefined}
-              className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
-                isActive
-                  ? "bg-cyan-500/10 text-primary shadow-inner shadow-cyan-500/5 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:rounded-r before:bg-primary before:shadow-[0_0_8px_rgba(0,212,255,0.8)]"
-                  : "text-muted-foreground hover:bg-slate-800/50 hover:text-foreground"
-              } ${collapsed ? "md:justify-center" : ""}`}
-              title={collapsed ? item.label : undefined}
-            >
-              <Icon
-                className={`h-[16px] w-[16px] shrink-0 transition-colors ${
-                  isActive ? "text-cyan-400 fill-cyan-400/20" : "text-muted-foreground group-hover:text-foreground"
-                }`}
-              />
-              {!collapsed && <span>{item.label}</span>}
-            </button>
-          );
-        })}
+        {navItems
+          .filter((item) => userClearance >= item.clearance)
+          .map((item) => {
+            const Icon = item.icon;
+            const isActive = activeView === item.id;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onViewChange(item.id);
+                  setSidebarOpen(false); // Close mobile sidebar on navigation
+                }}
+                aria-label={item.label}
+                aria-current={isActive ? "page" : undefined}
+                className={`group relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
+                  isActive
+                    ? "bg-cyan-500/10 text-primary shadow-inner shadow-cyan-500/5 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:rounded-r before:bg-primary before:shadow-[0_0_8px_rgba(0,212,255,0.8)]"
+                    : "text-muted-foreground hover:bg-slate-800/50 hover:text-foreground"
+                } ${collapsed ? "md:justify-center" : ""}`}
+                title={collapsed ? item.label : undefined}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon
+                    className={`h-[16px] w-[16px] shrink-0 transition-colors ${
+                      isActive
+                        ? "text-cyan-400 fill-cyan-400/20"
+                        : "text-muted-foreground group-hover:text-foreground"
+                    }`}
+                  />
+                  {!collapsed && <span>{item.label}</span>}
+                </div>
+
+                {!collapsed && item.badge && (
+                  <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-400 border border-red-500/40 animate-pulse">
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
 
         {/* Intelligence Streams (Categories & Sources) */}
         <div className={`mt-4 mb-2 ${collapsed ? "px-0" : "px-2"}`}>

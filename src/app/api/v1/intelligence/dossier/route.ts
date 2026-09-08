@@ -1,8 +1,23 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
+
+function encryptWithPassphrase(text: string, passphrase: string): string {
+  const salt = crypto.randomBytes(16);
+  const iv = crypto.randomBytes(12);
+  const key = crypto.pbkdf2Sync(passphrase, salt, 100000, 32, 'sha256');
+  
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  let encrypted = cipher.update(text, 'utf8', 'base64');
+  encrypted += cipher.final('base64');
+  const authTag = cipher.getAuthTag().toString('base64');
+  
+  // Format: salt:iv:ciphertext:authTag
+  return `${salt.toString('base64')}:${iv.toString('base64')}:${encrypted}:${authTag}`;
+}
 
 export async function POST(request: Request) {
   try {
-    const { targetId } = await request.json();
+    const { targetId, passphrase } = await request.json();
 
     const markdownDossier = `# OFFICIAL LAW ENFORCEMENT INTELLIGENCE DOSSIER
 **CASE REF:** NEXUS-CRIM-2026-089  
@@ -39,16 +54,26 @@ CREATE (p)-[:OWNS_WALLET {confidence: 0.98}]->(w)
 CREATE (p)-[:SIGNS_WITH {confidence: 0.99}]->(pgp);
 `;
 
+    const payload = {
+      targetId: targetId || 'ent-001',
+      markdown: markdownDossier,
+      cypher: cypherScript,
+      timestamp: new Date().toISOString()
+    };
+    
+    let responseData: any = payload;
+    if (passphrase) {
+      responseData = {
+        encryptedPayload: encryptWithPassphrase(JSON.stringify(payload), passphrase),
+        note: "Payload is encrypted using AES-256-GCM. Decrypt with the provided passphrase."
+      };
+    }
+
     return NextResponse.json({
       success: true,
-      data: {
-        targetId: targetId || 'ent-001',
-        markdown: markdownDossier,
-        cypher: cypherScript,
-        timestamp: new Date().toISOString()
-      }
+      data: responseData
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: { message: "Internal Server Error" } }, { status: 500 });
   }
 }

@@ -232,7 +232,7 @@ export default function Dashboard() {
                 icon={Eye}
                 color="#00d4ff"
                 glowClass="glow-cyan"
-                onClick={() => setActiveView("report-investigations")}
+                onClick={currentUser && currentUser.clearanceLevel >= 2 ? () => setActiveView("report-investigations") : undefined}
               />
               <KpiCard
                 title="Intercepted Listings"
@@ -250,7 +250,7 @@ export default function Dashboard() {
                 icon={Wallet}
                 color="#FFD700"
                 glowClass="glow-gold"
-                onClick={() => setActiveView("report-financial")}
+                onClick={currentUser && currentUser.clearanceLevel >= 2 ? () => setActiveView("report-financial") : undefined}
               />
               <KpiCard
                 title="High Risk Alerts"

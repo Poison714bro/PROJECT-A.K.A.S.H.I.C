@@ -7,6 +7,7 @@ Exports case graphs to GraphML (Gephi / i2 Analyst Notebook), Cypher (Neo4j), an
 import json
 from typing import Any, Dict, List, Optional
 import networkx as nx
+from analysis.crypto import decrypt
 
 
 class GraphExporter:
@@ -44,7 +45,7 @@ class GraphExporter:
 
         for n, data in g.nodes(data=True):
             clean_id = str(n).replace("'", "\\'")
-            label = str(data.get("label", n)).replace("'", "\\'")
+            label = decrypt(str(data.get("label", n))).replace("'", "\\'")
             ntype = str(data.get("type", "Entity")).replace(" ", "_").capitalize()
             risk = data.get("riskScore", 0)
             lines.append(f"MERGE (n:`{ntype}` {{id: '{clean_id}'}}) SET n.label = '{label}', n.riskScore = {risk};")
@@ -69,7 +70,7 @@ class GraphExporter:
             nodes_ld.append({
                 "@id": f"nexus:entity/{n}",
                 "@type": f"nexus:{data.get('type', 'IntelEntity')}",
-                "name": data.get("label", n),
+                "name": decrypt(str(data.get("label", n))),
                 "riskScore": data.get("riskScore", 0),
                 "category": data.get("category", "General")
             })

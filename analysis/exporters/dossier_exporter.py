@@ -7,6 +7,7 @@ Generates comprehensive evidentiary reports for prosecutors, judges, and senior 
 from datetime import datetime
 import json
 from typing import Any, Dict, List, Optional
+from analysis.crypto import decrypt
 
 
 class DossierExporter:
@@ -26,15 +27,15 @@ class DossierExporter:
         """
         Generates a comprehensive Markdown intelligence dossier.
         """
-        alias = target_entity.get("primaryAlias") or target_entity.get("primary_alias") or target_entity.get("label", "Unknown Target")
+        alias = decrypt(target_entity.get("primaryAlias") or target_entity.get("primary_alias") or target_entity.get("label", "Unknown Target"))
         entity_id = target_entity.get("id", "N/A")
         category = target_entity.get("category", "Cybercrime Actor")
         risk_score = target_entity.get("riskScore") or target_entity.get("risk_score", 0)
         status = target_entity.get("status", "Active Target")
         
-        wallets = target_entity.get("linked_wallets", [])
-        pgp = target_entity.get("pgp_fingerprint") or target_entity.get("pgpFingerprint", "None Registered")
-        known_aliases = target_entity.get("known_aliases", [])
+        wallets = [decrypt(w) for w in target_entity.get("linked_wallets", [])]
+        pgp = decrypt(target_entity.get("pgp_fingerprint") or target_entity.get("pgpFingerprint", "None Registered"))
+        known_aliases = [decrypt(a) for a in target_entity.get("known_aliases", [])]
 
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
 

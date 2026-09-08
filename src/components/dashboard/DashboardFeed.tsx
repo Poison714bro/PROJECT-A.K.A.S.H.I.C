@@ -53,6 +53,7 @@ function getExactCategoryColor(category: string) {
 export function DashboardFeed({ feed }: { feed?: any[] }) {
   const openDossier = useAppStore((s) => s.openDossier);
   const setActiveView = useAppStore((s) => s.setActiveView);
+  const currentUser = useAppStore((s) => s.currentUser);
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
   const [popoverActive, setPopoverActive] = useState<string | null>(null); // Stores ID of row with active popover
 
@@ -104,7 +105,11 @@ export function DashboardFeed({ feed }: { feed?: any[] }) {
                   setHoveredRowId(null);
                   setPopoverActive(null);
                 }}
-                onClick={() => openDossier(item.entity)}
+                onClick={() => {
+                  if (currentUser?.clearanceLevel !== 1) {
+                    openDossier(item.entity);
+                  }
+                }}
               >
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-2.5">

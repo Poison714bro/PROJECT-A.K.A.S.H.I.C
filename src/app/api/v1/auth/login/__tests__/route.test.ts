@@ -13,6 +13,8 @@ vi.mock('@/lib/prisma', () => ({
 describe('Auth Login API Route (v1)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.FIELD_ENCRYPTION_KEY = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='; // 32 bytes in base64
+    process.env.SEARCH_HMAC_KEY = 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=';
   });
 
   it('rejects requests missing username or password with 400', async () => {
@@ -39,13 +41,14 @@ describe('Auth Login API Route (v1)', () => {
 
     const res = await POST(req);
     const body = await res.json();
+    const setCookie = res.headers.get('set-cookie');
 
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.data.user.username).toBe('admin');
     expect(body.data.user.role).toBe('ADMIN');
     expect(body.data.user.clearanceLevel).toBe(3);
-    expect(body.data.token).toContain('akashic-jwt-token-admin');
+    expect(setCookie).toContain('session=');
   });
 
   it('authenticates predefined agent operator', async () => {
@@ -81,12 +84,13 @@ describe('Auth Login API Route (v1)', () => {
 
     const res = await POST(req);
     const body = await res.json();
+    const setCookie = res.headers.get('set-cookie');
 
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.data.user.id).toBe('db-user-42');
     expect(body.data.user.username).toBe('custom_operator');
-    expect(body.data.token).toContain('akashic-jwt-token-db-user-42');
+    expect(setCookie).toContain('session=');
   });
 
   it('rejects unrecognized credentials with 401', async () => {

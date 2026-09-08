@@ -34,7 +34,7 @@ export interface AppState {
   activeEntityId: string | null;
 
   // View navigation
-  activeView: "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts";
+  activeView: "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts" | "admin-console";
   sidebarOpen: boolean;
 
   // Search
@@ -54,8 +54,13 @@ export interface AppState {
   setInvestigationsCache: (data: any[]) => void;
 
   // Actions
+  demoTimeoutActive: boolean;
+  setDemoTimeoutActive: (active: boolean) => void;
+  inactivityLoggedOut: boolean;
+  setInactivityLoggedOut: (val: boolean) => void;
   login: (user: User, token: string) => void;
   logout: () => void;
+  updateUserClearance: (level: ClearanceLevel) => void;
   setToken: (token: string | null) => void;
   selectEntity: (id: string, type: "pin" | "node", linkedIds?: string[]) => void;
   clearSelection: () => void;
@@ -121,8 +126,23 @@ export const useAppStore = create<AppState>((set, get) => {
     
     filters: createDefaultFilters(),
 
-    login: (user, token) => set({ isAuthenticated: true, currentUser: user, token }),
+    demoTimeoutActive: false,
+    setDemoTimeoutActive: (active) => set({ demoTimeoutActive: active }),
+    inactivityLoggedOut: false,
+    setInactivityLoggedOut: (val) => set({ inactivityLoggedOut: val }),
+
+    login: (user, token) => set({ isAuthenticated: true, currentUser: user, token, inactivityLoggedOut: false }),
     logout: () => set({ isAuthenticated: false, currentUser: null, token: null, activeView: "dashboard" }),
+    updateUserClearance: (level) =>
+      set((state) => ({
+        currentUser: state.currentUser
+          ? {
+              ...state.currentUser,
+              clearanceLevel: level,
+              role: level === 3 ? "Admin" : level === 2 ? "Agent" : "Analyst",
+            }
+          : null,
+      })),
     setToken: (token) => set({ token }),
 
     selectEntity: (id, type, linkedIds = []) =>

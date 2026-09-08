@@ -15,6 +15,7 @@ import {
   GitBranch,
   FolderOpen,
   Menu,
+  Shield,
 } from "lucide-react";
 import { alertsData, mapPinsData, graphNodesData, kanbanData } from "@/lib/mockData";
 import { getTimeAgo } from "@/lib/utils";
@@ -70,6 +71,10 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const currentUser = useAppStore((s) => s.currentUser);
   const logout = useAppStore((s) => s.logout);
+  const demoTimeoutActive = useAppStore((s) => s.demoTimeoutActive);
+  const setDemoTimeoutActive = useAppStore((s) => s.setDemoTimeoutActive);
+  const setInactivityLoggedOut = useAppStore((s) => s.setInactivityLoggedOut);
+  const updateUserClearance = useAppStore((s) => s.updateUserClearance);
 
   const markAllAsRead = () => {
     setNotificationsList((prev) => prev.map((a) => ({ ...a, acknowledged: true })));
@@ -89,21 +94,15 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
   const searchResults = useMemo(() => {
     if (!searchQuery || searchQuery.length < 2) return [];
     const q = searchQuery.toLowerCase();
-    return searchIndex.filter((item) =>
-      item.label.toLowerCase().includes(q) || item.id.toLowerCase().includes(q)
-    ).slice(0, 8);
-  }, [searchQuery]);
+    const userClearance = currentUser?.clearanceLevel || 1;
+    return searchIndex.filter((item) => {
+      const requiredClearance = item.view === "map" || item.view === "evidence" || item.view === "investigations" ? 2 : 1;
+      if (userClearance < requiredClearance) return false;
+      return item.label.toLowerCase().includes(q) || item.id.toLowerCase().includes(q);
+    }).slice(0, 8);
+  }, [searchQuery, currentUser?.clearanceLevel]);
 
-  useEffect(() => {
-    try {
-      const history = localStorage.getItem("searchHistory");
-      if (history) {
-        setSearchHistory(JSON.parse(history));
-      }
-    } catch (e) {
-      console.error("Failed to parse search history", e);
-    }
-  }, []);
+  // Search history is now memory-only to comply with zero-trust storage policies
 
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -116,13 +115,35 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
     return () => document.removeEventListener("keydown", handleGlobalKeyDown);
   }, []);
 
+  const timeoutDuration = demoTimeoutActive ? 15000 : 600000; // 15s vs 10m
+
+  // Auto-Logout for Inactivity
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        console.log(`User inactive for ${timeoutDuration}ms. Logging out.`);
+        setInactivityLoggedOut(true);
+        logout();
+      }, timeoutDuration);
+    };
+
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    events.forEach(event => document.addEventListener(event, resetTimer));
+    
+    // Initialize timer
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(event => document.removeEventListener(event, resetTimer));
+    };
+  }, [logout, timeoutDuration]);
+
   const saveSearchHistory = (newHistory: string[]) => {
     setSearchHistory(newHistory);
-    try {
-      localStorage.setItem("searchHistory", JSON.stringify(newHistory));
-    } catch (e) {
-      console.error("Failed to save search history", e);
-    }
   };
 
   const handleSearchSubmit = (query: string) => {
@@ -132,9 +153,9 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
     const uniqueHistory = [query, ...searchHistory.filter(q => q !== query)].slice(0, 5);
     saveSearchHistory(uniqueHistory);
     
-    // Mock search function
-    console.log("Executing search for:", query);
+    // Removed console.log to prevent logging potentially sensitive search queries (like PGP keys)
     setSearchFocused(false);
+    router.push(`/search?q=${encodeURIComponent(query)}`);
     searchInputRef.current?.blur();
   };
 
@@ -396,6 +417,33 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
           )}
         </div>
 
+        {/* Clearance Level Pill & Admin Console Link */}
+        <div className="hidden sm:flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold border ${
+            currentUser?.clearanceLevel === 3
+              ? "bg-red-950/60 border-red-500/50 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+              : currentUser?.clearanceLevel === 2
+              ? "bg-amber-950/60 border-amber-500/50 text-amber-400"
+              : "bg-cyan-950/60 border-cyan-500/50 text-cyan-400"
+          }`}>
+            <span className={`h-2 w-2 rounded-full ${
+              currentUser?.clearanceLevel === 3 ? "bg-red-500 animate-ping" : currentUser?.clearanceLevel === 2 ? "bg-amber-500" : "bg-cyan-400"
+            }`} />
+            <span>L{currentUser?.clearanceLevel || 1} • {currentUser?.role?.toUpperCase() || "ANALYST"}</span>
+          </div>
+
+          {currentUser?.clearanceLevel === 3 && (
+            <button
+              onClick={() => setActiveView("admin-console")}
+              className="flex items-center gap-1.5 rounded-lg border border-red-500/40 bg-red-950/40 px-2.5 py-1 text-xs font-semibold text-red-300 hover:bg-red-900/60 transition-colors"
+              title="Open Security & Cryptographic Console"
+            >
+              <Shield className="h-3.5 w-3.5 text-red-400" />
+              <span>Console</span>
+            </button>
+          )}
+        </div>
+
         {/* Profile */}
         <div className="relative" ref={profileRef}>
           <button
@@ -417,7 +465,7 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
           </button>
 
           {showProfile && (
-            <div className="absolute right-0 top-12 z-dropdown w-56 rounded-xl border border-border bg-[var(--card)] shadow-2xl shadow-black/50">
+            <div className="absolute right-0 top-12 z-dropdown w-64 rounded-xl border border-border bg-[var(--card)] shadow-2xl shadow-black/50">
               <div className="border-b border-border p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-sm font-bold text-white">
@@ -429,7 +477,34 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
                   </div>
                 </div>
               </div>
-              <div className="p-2">
+              <div className="p-2 space-y-1">
+
+                <button 
+                  onClick={() => setDemoTimeoutActive(!demoTimeoutActive)}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-slate-800/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3.5 w-3.5" />
+                    Demo: 15s Timeout
+                  </div>
+                  <div className={`flex h-3 w-6 items-center rounded-full transition-colors ${demoTimeoutActive ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                    <div className={`h-2.5 w-2.5 rounded-full bg-white transition-transform ${demoTimeoutActive ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                  </div>
+                </button>
+
+                {currentUser?.clearanceLevel === 3 && (
+                  <button 
+                    onClick={() => {
+                      setActiveView("admin-console");
+                      setShowProfile(false);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-red-300 transition-colors hover:bg-red-950/40 hover:text-red-200"
+                  >
+                    <Shield className="h-3.5 w-3.5 text-red-400" />
+                    Security Command Console
+                  </button>
+                )}
+
                 <button 
                   onClick={() => {
                     setActiveView("dashboard");
