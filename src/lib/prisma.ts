@@ -120,7 +120,7 @@ export const prisma = basePrisma.$extends({
                 return decryptData(model, result);
               }
             }
-        }
+        
         
         return result;
       }
