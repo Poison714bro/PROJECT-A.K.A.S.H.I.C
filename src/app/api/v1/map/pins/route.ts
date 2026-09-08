@@ -43,12 +43,6 @@ export async function GET(request: Request) {
       originRoute: inc.originRoute ? JSON.parse(inc.originRoute) : []
     }));
 
-<<<<<<< Updated upstream
-    // Simulate network latency for Project A.K.A.S.H.I.C. telemetry realism
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-=======
->>>>>>> Stashed changes
     return NextResponse.json({ success: true, data: pins });
   } catch (error: any) {
     console.error("[/api/v1/map/pins] Prisma query failed:", error);

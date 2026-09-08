@@ -29,3 +29,4 @@ next-env.d.ts
 
 # agents & secrets
 .agents/
+.env 
