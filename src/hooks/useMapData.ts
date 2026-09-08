@@ -58,17 +58,34 @@ export function useMapData(
       riskMax
     }).then((res) => {
       if (isCancelled) return;
-      if (res.ok && res.data) {
+      if (res.ok && res.data && res.data.length > 0) {
         setMapPinsData(res.data.map((p: any) => ({
           ...p,
           date: p.date.split('T')[0],
           details: p.quantityEst || `${p.city}, ${p.country}`,
-          linkedNodeIds: [],
+          linkedNodeIds: p.linkedNodeIds || [],
+          originRoute: p.originRoute || [],
         })));
+      } else {
+        let fallback = mockMapPinsData;
+        if (startDate && endDate) {
+          fallback = fallback.filter(p => p.date >= startDate && p.date <= endDate);
+        }
+        if (categoriesParam) {
+          const cats = categoriesParam.split(',').map(c => c.trim().toLowerCase()).filter(Boolean);
+          if (cats.length > 0) {
+            fallback = fallback.filter(p => cats.some(cat => p.drugCategory.toLowerCase().includes(cat)));
+          }
+        }
+        if (riskMin || riskMax) {
+          fallback = fallback.filter(p => p.riskScore >= riskMin && p.riskScore <= riskMax);
+        }
+        setMapPinsData(fallback);
       }
     }).catch(err => {
       if (isCancelled) return;
       console.error("Critical Map Fetch Error:", err);
+      setMapPinsData(mockMapPinsData);
     });
 
     return () => {

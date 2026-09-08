@@ -80,14 +80,14 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
     setNotificationsList((prev) => prev.map((a) => ({ ...a, acknowledged: true })));
   };
 
-  const userInitials = (currentUser?.username || "Agent Torres")
+  const userInitials = (currentUser?.username || "Admin")
     .split(" ")
     .map((p) => p[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2) || "AT";
-  const displayName = currentUser?.username || "Agent Torres";
-  const displayRole = currentUser?.role ? `${currentUser.role} (Clearance L${currentUser.clearanceLevel || 1})` : "Cyber Division Lead";
+    .slice(0, 2) || "A";
+  const displayName = currentUser?.username || "Admin";
+  const displayRole = currentUser?.role ? `${currentUser.role} (Clearance L${currentUser.clearanceLevel || 2})` : "Admin (Clearance L2)";
 
   const unreadAlerts = notificationsList.filter((a) => !a.acknowledged).length;
 
@@ -199,27 +199,46 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
   };
 
   return (
-    <header className="z-header flex h-16 shrink-0 items-center justify-between border-b border-border bg-[var(--header-bg)] px-4 md:px-6 backdrop-blur-md relative">
-      <div className="flex flex-1 items-center gap-3">
+    <header className="z-header flex h-14 shrink-0 items-center justify-between border-b border-[rgba(0,229,255,0.15)] bg-[#070B0E] px-3 md:px-5 backdrop-blur-md relative font-sans select-none">
+      <div className="flex flex-1 items-center gap-3 md:gap-4">
         {/* Mobile Menu Toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           aria-label="Toggle navigation menu"
-          className="md:hidden p-2 -ml-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-lg"
+          className="md:hidden p-1.5 -ml-1 text-[#6B9DA8] transition-colors hover:text-[#E6F8FF] focus-visible:ring-1 focus-visible:ring-[#00E5FF] rounded"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         </button>
+
+        {/* Project Branding */}
+        <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => setActiveView("dashboard")}>
+          <div className="flex h-8 w-8 items-center justify-center rounded bg-[#111C24] border border-[#00E5FF]/40 shadow-[0_0_10px_rgba(0,229,255,0.25)]">
+            <svg className="h-4 w-4 text-[#00E5FF] animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+              <circle cx="12" cy="12" r="3" fill="currentColor" fillOpacity="0.3" />
+              <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+            </svg>
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span className="text-xs font-black tracking-widest text-[#E6F8FF] font-mono flex items-center gap-1.5">
+              PROJECT AKASHIC
+            </span>
+            <span className="text-[9px] font-mono tracking-wider text-[#00E5FF]/80 uppercase">
+              CYBER-INTELLIGENCE & INTERDICTION PLATFORM
+            </span>
+          </div>
+        </div>
         
-        {/* Advanced Search */}
-        <div className="relative max-w-lg flex-1" ref={searchRef}>
+        {/* Omni-Search Bar */}
+        <div className="relative max-w-lg flex-1 ml-2 md:ml-4" ref={searchRef}>
           <div
-            className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all duration-200 ${
+            className={`flex items-center gap-2 rounded border px-3 py-1.5 transition-all duration-200 ${
               searchFocused
-                ? "border-primary/50 bg-slate-900/80 shadow-lg shadow-cyan-500/5"
-                : "border-border bg-slate-900/20 opacity-70 hover:opacity-100 hover:bg-slate-900/40"
+                ? "border-[#00E5FF] bg-[#0B1218] shadow-[0_0_12px_rgba(0,229,255,0.2)]"
+                : "border-[rgba(0,229,255,0.15)] bg-[#0B1218]/90 hover:border-[#00E5FF]/40"
             }`}
           >
-            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <Search className="h-3.5 w-3.5 shrink-0 text-[#00E5FF]" />
             <input
               ref={searchInputRef}
               type="text"
@@ -227,22 +246,22 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
               onChange={(e) => onSearchChange(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onKeyDown={handleKeyDown}
-              placeholder="Search wallets, aliases, locations, case IDs..."
-              aria-label="Search intelligence entities and cases"
-              className="w-full bg-transparent text-sm text-foreground placeholder-slate-600 outline-none"
+              placeholder="Search entities, suspects, wallet addresses, cases..."
+              aria-label="Search entities, suspects, wallet addresses, cases"
+              className="w-full bg-transparent text-xs text-[#E6F8FF] placeholder-[#6B9DA8]/70 outline-none font-mono"
             />
             {searchQuery && (
               <button
                 onClick={() => onSearchChange("")}
                 aria-label="Clear search query"
-                className="text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                className="text-[#6B9DA8] hover:text-[#E6F8FF] rounded"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3 w-3" />
               </button>
             )}
-            <div className="hidden sm:flex items-center gap-1 border-l border-border pl-2">
-              <kbd className="rounded bg-slate-800/80 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-slate-700">
-                Ctrl+K
+            <div className="hidden sm:flex items-center gap-1 pl-1">
+              <kbd className="rounded bg-[#111C24] px-1.5 py-0.5 text-[9px] font-mono text-[#00E5FF]/90 border border-[rgba(0,229,255,0.2)]">
+                Ctrl-K
               </kbd>
             </div>
           </div>
@@ -321,13 +340,21 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
         </div>
       </div>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-2">
-        {/* Live Indicator */}
-        <div className="mr-2 flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1">
-          <Wifi className="h-3 w-3 text-emerald-400" />
-          <span className="text-[10px] font-medium text-emerald-400">LIVE</span>
-          <div className="live-dot" />
+      {/* Right HUD Badges & Controls */}
+      <div className="flex items-center gap-3">
+        {/* Real User Clearance Badge */}
+        <div className="hidden sm:flex items-center rounded border border-[rgba(0,229,255,0.25)] bg-[#111C24] px-2.5 py-1 text-[10px] font-mono text-[#00E5FF] shadow-[0_0_10px_rgba(0,229,255,0.12)]">
+          <span className="text-[#6B9DA8] font-bold">[</span>
+          <span className="tracking-widest font-bold mx-1">
+            CLEARANCE L{currentUser?.clearanceLevel || 1} // {currentUser?.role?.toUpperCase() || "ANALYST"}
+          </span>
+          <span className="text-[#6B9DA8] font-bold">]</span>
+        </div>
+
+        {/* Live Indicator Badge */}
+        <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-950/40 px-2.5 py-0.5 text-[10px] font-mono font-bold text-emerald-400 shadow-[0_0_10px_rgba(0,230,118,0.2)]">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+          <span>LIVE</span>
         </div>
 
         {/* Notifications */}
@@ -338,14 +365,12 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
               setShowProfile(false);
             }}
             aria-label="View notifications"
-            className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-slate-800/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="relative rounded p-1.5 text-[#6B9DA8] transition-colors hover:bg-[#111C24] hover:text-[#E6F8FF] border border-transparent hover:border-[rgba(0,229,255,0.2)]"
           >
-            <Bell className="h-[18px] w-[18px]" />
-            {unreadAlerts > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-lg shadow-red-500/30">
-                {unreadAlerts}
-              </span>
-            )}
+            <Bell className="h-4 w-4" />
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF1744] text-[9px] font-mono font-bold text-white shadow-lg shadow-red-500/40">
+              0
+            </span>
           </button>
 
           {/* Notifications Dropdown */}

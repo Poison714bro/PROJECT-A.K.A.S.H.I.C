@@ -20,6 +20,7 @@ export interface User {
   role: "Agent" | "Analyst" | "Admin";
 }
 
+
 export interface AppState {
   // Auth state
   isAuthenticated: boolean;
@@ -34,7 +35,7 @@ export interface AppState {
   activeEntityId: string | null;
 
   // View navigation
-  activeView: "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts" | "admin-console";
+  activeView: "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts" | "admin-console" | "scraper";
   sidebarOpen: boolean;
 
   // Search

@@ -53,7 +53,7 @@ function cachedHexToRgb(hex: string, alpha: number = 255): [number, number, numb
 const ICON_MAPPING = {
   marker: { x: 0, y: 0, width: 24, height: 24, mask: true }
 };
-const MARKER_SVG = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C7.58 0 4 3.58 4 8c0 5.25 8 16 8 16s8-10.75 8-16c0-4.42-3.58-8-8-8zm0 11.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 4.5 12 4.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z' fill='white'/%3E%3C/svg%3E";
+const MARKER_SVG = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C7.58 0 4 3.58 4 8c0 5.25 8 16 8 16s8-10.75 8-16c0-4.42-3.58-8-8-8zm0 11.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 4.5 12 4.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z' fill='white'/%3E%3C/svg%3E";
 
 const INITIAL_VIEW_STATE = {
   longitude: 78.0,
@@ -326,6 +326,52 @@ export default function MapView() {
           onHover: (info: any) => setHoverInfo(info),
         }),
         
+        // Pin Radar Pulse Halo
+        new ScatterplotLayer({
+          id: 'pin-pulse-layer',
+          data: unclusteredPoints,
+          getPosition: (d: any) => d.geometry.coordinates,
+          getRadius: (d: any) => {
+            const isSelected = selectedPin === d.properties.id || (storeSelectedType === "pin" && storeSelectedId === d.properties.id);
+            return isSelected ? 22 : 14;
+          },
+          radiusUnits: 'pixels',
+          getFillColor: (d: any) => cachedHexToRgb(getDrugColor(d.properties.drugCategory), 40),
+          getLineColor: (d: any) => cachedHexToRgb(getDrugColor(d.properties.drugCategory), 230),
+          getLineWidth: 2,
+          lineWidthUnits: 'pixels',
+          pickable: true,
+          onClick: (info: any) => {
+            if (info.object && !info.object.properties.cluster) {
+              handlePinClick(info.object.properties.id);
+            }
+          },
+          onHover: (info: any) => setHoverInfo(info),
+          updateTriggers: {
+            getRadius: [selectedPin, storeSelectedId],
+          }
+        }),
+
+        // Pin Core Dot
+        new ScatterplotLayer({
+          id: 'pin-core-layer',
+          data: unclusteredPoints,
+          getPosition: (d: any) => d.geometry.coordinates,
+          getRadius: (d: any) => {
+            const isSelected = selectedPin === d.properties.id || (storeSelectedType === "pin" && storeSelectedId === d.properties.id);
+            return isSelected ? 8 : 5;
+          },
+          radiusUnits: 'pixels',
+          getFillColor: (d: any) => cachedHexToRgb(getDrugColor(d.properties.drugCategory), 255),
+          getLineColor: [255, 255, 255, 255],
+          getLineWidth: 1.5,
+          lineWidthUnits: 'pixels',
+          pickable: false,
+          updateTriggers: {
+            getRadius: [selectedPin, storeSelectedId],
+          }
+        }),
+
         // Teardrop Icon Layer
         new IconLayer({
           id: 'icon-layer',
@@ -352,6 +398,23 @@ export default function MapView() {
           updateTriggers: {
             getSize: [selectedPin, storeSelectedId],
           }
+        }),
+
+        // Tactical City Name Label
+        new TextLayer({
+          id: 'pin-label-layer',
+          data: unclusteredPoints,
+          getPosition: (d: any) => d.geometry.coordinates,
+          getText: (d: any) => (d.properties.city || d.properties.label || "").split(',')[0].trim(),
+          getSize: 11,
+          getColor: [230, 248, 255, 240],
+          getPixelOffset: [0, -22],
+          getTextAnchor: 'middle',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontWeight: 600,
+          background: true,
+          getBackgroundColor: [10, 15, 24, 210],
+          backgroundPadding: [4, 2, 4, 2],
         }),
         
         // Glowing cluster background

@@ -15,36 +15,28 @@ import {
   Bitcoin,
   Lock,
   Monitor,
-  Sparkles,
+  Shield,
 } from "lucide-react";
 import type { ViewType } from "@/app/page";
-
-import { Shield, ShieldAlert, KeyRound } from "lucide-react";
 
 export interface NavItem {
   id: ViewType;
   label: string;
   icon: React.ElementType;
-  clearance: 1 | 2 | 3;
-  tier: "Operations" | "Tactical Intel" | "Command & Security";
+  clearance: number;
+  tier?: "Operations" | "Tactical Intel" | "Command & Security";
   badge?: string;
 }
 
 export const navItems: NavItem[] = [
-  // Tier 1: Operations (Analyst Level 1+)
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, clearance: 1, tier: "Operations" },
-  { id: "report-alerts", label: "Threat Triage", icon: Monitor, clearance: 1, tier: "Operations" },
-  { id: "report-listings", label: "Darknet Listings", icon: Globe, clearance: 1, tier: "Operations" },
-
-  // Tier 2: Tactical Intelligence (Agent Level 2+)
-  { id: "map", label: "Geo-Intel Map", icon: Map, clearance: 2, tier: "Tactical Intel", badge: "L2" },
+  { id: "map", label: "Incident Map", icon: Map, clearance: 1, tier: "Operations" },
   { id: "evidence", label: "Evidence Graph", icon: GitBranch, clearance: 2, tier: "Tactical Intel", badge: "L2" },
-  { id: "investigations", label: "Investigations", icon: Search, clearance: 2, tier: "Tactical Intel", badge: "L2" },
-  { id: "entity-resolution", label: "Entity Resolution", icon: Users, clearance: 2, tier: "Tactical Intel", badge: "L2" },
-  { id: "timeline-reconstructor", label: "Timeline Engine", icon: Activity, clearance: 2, tier: "Tactical Intel", badge: "L2" },
-  { id: "movement-tracker", label: "Pattern of Life", icon: Radar, clearance: 2, tier: "Tactical Intel", badge: "L2" },
-
-  // Tier 3: Command & Security (Admin Level 3 Only)
+  { id: "timeline-reconstructor", label: "Timeline Reconstructor", icon: Activity, clearance: 2, tier: "Tactical Intel", badge: "L2" },
+  { id: "movement-tracker", label: "Movement Tracker", icon: Radar, clearance: 2, tier: "Tactical Intel", badge: "L2" },
+  { id: "investigations", label: "Investigations", icon: Users, clearance: 2, tier: "Tactical Intel", badge: "L2" },
+  { id: "entity-resolution", label: "Entity Resolution", icon: Search, clearance: 2, tier: "Tactical Intel", badge: "L2" },
+  { id: "scraper", label: "Ingestion / Scraper", icon: Globe, clearance: 1, tier: "Operations" },
   { id: "admin-console", label: "Security Console", icon: Shield, clearance: 3, tier: "Command & Security", badge: "L3 ADMIN" },
 ];
 

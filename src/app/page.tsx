@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
+import TelemetryBar from "@/components/layout/TelemetryBar";
 import Dashboard from "@/components/views/Dashboard";
 import MapView from "@/components/views/MapView";
 import EvidenceGraph from "@/components/views/EvidenceGraph";
@@ -15,19 +16,20 @@ import ReportInvestigations from "@/components/views/ReportInvestigations";
 import ReportListings from "@/components/views/ReportListings";
 import ReportFinancial from "@/components/views/ReportFinancial";
 import ReportAlerts from "@/components/views/ReportAlerts";
+import ScraplingHarvester from "@/components/views/ScraplingHarvester";
 import LoginView from "@/components/views/LoginView";
 import UnauthorizedView from "@/components/views/UnauthorizedView";
 import AdminConsole from "@/components/views/AdminConsole";
 import { useAppStore } from "@/lib/store";
 
-export type ViewType = "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts" | "admin-console";
+export type ViewType = "dashboard" | "map" | "evidence" | "investigations" | "entity-resolution" | "timeline-reconstructor" | "dossier" | "movement-tracker" | "report-investigations" | "report-listings" | "report-financial" | "report-alerts" | "admin-console" | "scraper";
 
 // Define clearance requirements for each view
 const VIEW_CLEARANCE_REQUIREMENTS: Record<ViewType, number> = {
   "dashboard": 1,
   "report-alerts": 1,
   "report-listings": 1,
-  "map": 2, // Tactical operations require Level 2
+  "map": 1,
   "evidence": 2,
   "entity-resolution": 2,
   "timeline-reconstructor": 2,
@@ -36,7 +38,8 @@ const VIEW_CLEARANCE_REQUIREMENTS: Record<ViewType, number> = {
   "report-investigations": 2,
   "report-financial": 2,
   "dossier": 2,
-  "admin-console": 3, // System Administration requires Level 3
+  "scraper": 1,
+  "admin-console": 3,
 };
 
 export default function Home() {
@@ -81,6 +84,7 @@ export default function Home() {
       case "report-financial": return <ReportFinancial />;
       case "report-alerts": return <ReportAlerts />;
       case "admin-console": return <AdminConsole />;
+      case "scraper": return <ScraplingHarvester />;
       default: return <Dashboard />;
     }
   };
@@ -93,6 +97,7 @@ export default function Home() {
         <main className="flex-1 overflow-auto">
           {renderView()}
         </main>
+        <TelemetryBar />
       </div>
     </div>
   );
