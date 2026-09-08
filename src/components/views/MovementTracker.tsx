@@ -61,7 +61,9 @@ export default function MovementTracker() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
   };
@@ -164,10 +166,10 @@ export default function MovementTracker() {
   ];
 
   return (
-    <div className="flex h-full w-full bg-card text-foreground font-mono overflow-hidden">
+    <div className="flex flex-col md:flex-row h-full w-full bg-card text-foreground font-mono overflow-hidden">
       
       {/* LEFT SIDEBAR: Global Target Roster */}
-      <div className="w-96 flex flex-col border-r border-border bg-card shadow-2xl z-10">
+      <div className="w-full md:w-96 max-h-[260px] md:max-h-none flex flex-col border-b md:border-b-0 md:border-r border-border bg-card shadow-2xl z-10">
         <div className="p-4 border-b border-border">
           <h2 className="text-sm font-bold text-slate-100 mb-3 tracking-widest uppercase">Global Target Roster</h2>
           <div className="relative">
@@ -175,6 +177,7 @@ export default function MovementTracker() {
             <input
               type="text"
               placeholder="Search suspect, location..."
+              aria-label="Search suspect, location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-slate-900 border border-slate-800 rounded-md py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-cyan-500 transition-colors"

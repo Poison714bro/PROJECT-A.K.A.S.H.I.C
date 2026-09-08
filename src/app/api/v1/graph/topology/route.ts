@@ -54,11 +54,11 @@ export async function GET(request: Request) {
         suspectRole: mapRole(entity.category),
         details: entity.summary,
         metadata: {
-          Category: entity.category,
-          Status: entity.status,
-          RiskScore: `${entity.riskScore}/100`,
-          FirstSeen: new Date(entity.firstSeen).toLocaleDateString(),
-          LastActive: new Date(entity.lastActive).toLocaleDateString()
+          Category: entity.category || 'General',
+          Status: entity.status || 'Active',
+          RiskScore: `${entity.riskScore ?? 50}/100`,
+          FirstSeen: entity.firstSeen ? new Date(entity.firstSeen).toLocaleDateString() : 'Unknown',
+          LastActive: entity.lastActive ? new Date(entity.lastActive).toLocaleDateString() : 'Active'
         }
       });
       nodeIds.add(entity.id);

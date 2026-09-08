@@ -102,18 +102,18 @@ export function useKanbanBoard(initialData: KanbanColumn[]) {
   };
 
   const filteredColumns = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return columns;
+
     return columns.map((col) => ({
       ...col,
-      cards: col.cards.filter(
-        (card) =>
-          !searchQuery ||
-          card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          card.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          card.tags.some((t) =>
-            t.toLowerCase().includes(searchQuery.toLowerCase())
-          ) ||
-          card.id.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
+      cards: (col.cards || []).filter((card) => {
+        const title = (card.title || "").toLowerCase();
+        const desc = (card.description || "").toLowerCase();
+        const id = (card.id || "").toLowerCase();
+        const hasTag = (card.tags || []).some((t) => (t || "").toLowerCase().includes(q));
+        return title.includes(q) || desc.includes(q) || id.includes(q) || hasTag;
+      }),
     }));
   }, [columns, searchQuery]);
 

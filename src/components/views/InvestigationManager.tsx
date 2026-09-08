@@ -95,7 +95,10 @@ function SortableInvestigationCard({ card }: { card: InvestigationCard }) {
     opacity: isDragging ? 0.4 : 1,
   };
 
-  const priority = priorityConfig[card.priority];
+  const priority = priorityConfig[card.priority?.toLowerCase()] || priorityConfig.medium;
+  const tags = card.tags || [];
+  const description = card.description || (card as any).summary || "Target under active cyber-intelligence tracking.";
+  const assigneeName = card.assignee || (card as any).assignedAgent || "Agent";
 
   return (
     <div
@@ -114,30 +117,32 @@ function SortableInvestigationCard({ card }: { card: InvestigationCard }) {
       </div>
       <h4 className="mb-1 text-xs font-semibold text-white">{card.title}</h4>
       <p className="mb-3 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">
-        {card.description}
+        {description}
       </p>
-      <div className="mb-2 flex flex-wrap gap-1">
-        {card.tags.map((tag) => (
-          <span key={tag} className="rounded-full bg-slate-800/80 px-2 py-0.5 text-[9px] font-medium text-muted-foreground">
-            {tag}
-          </span>
-        ))}
-      </div>
+      {tags.length > 0 && (
+        <div className="mb-2 flex flex-wrap gap-1">
+          {tags.map((tag) => (
+            <span key={tag} className="rounded-full bg-slate-800/80 px-2 py-0.5 text-[9px] font-medium text-muted-foreground">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="flex items-center justify-between border-t border-border pt-2">
         <div className="flex items-center gap-2">
           <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-[8px] font-bold text-white">
-            {card.assignee.split(" ")[1]?.[0] || "A"}
+            {assigneeName.split(" ")[1]?.[0] || assigneeName[0] || "A"}
           </div>
-          <span className="text-[10px] text-muted-foreground">{card.assignee}</span>
+          <span className="text-[10px] text-muted-foreground">{assigneeName}</span>
         </div>
         <div className="flex items-center gap-3 text-[10px] text-slate-600">
           <div className="flex items-center gap-1">
             <Paperclip className="h-3 w-3" />
-            <span>{card.evidenceCount}</span>
+            <span>{card.evidenceCount ?? 0}</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            <span>{card.createdAt.slice(5)}</span>
+            <span>{(card.createdAt || "").slice(5) || "Active"}</span>
           </div>
         </div>
       </div>
@@ -342,7 +347,11 @@ export default function InvestigationManager() {
             >
               <div className="flex items-center justify-between border-b border-border bg-[#0f111a] px-6 py-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Create New Investigation</h3>
-                <button onClick={() => setIsNewCaseOpen(false)} className="text-muted-foreground hover:text-white transition-colors">
+                <button
+                  onClick={() => setIsNewCaseOpen(false)}
+                  aria-label="Close new investigation modal"
+                  className="text-muted-foreground hover:text-white transition-colors"
+                >
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -398,6 +407,7 @@ export default function InvestigationManager() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search cases, tags..."
+              aria-label="Search cases, tags..."
               className="w-48 bg-transparent text-xs text-foreground placeholder-slate-600 outline-none"
             />
           </div>

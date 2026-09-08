@@ -72,12 +72,12 @@ export default function Sidebar({ activeView, onViewChange, threatLevel = "ELEVA
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-[35] bg-black/60 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-backdrop bg-black/70 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
       <aside
-        className={`z-sidebar absolute inset-y-0 left-0 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col border-r border-border bg-[var(--sidebar-bg)] ${
+        className={`z-[80] md:z-sidebar absolute inset-y-0 left-0 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col border-r border-border bg-[var(--sidebar-bg)] ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "md:w-[68px] w-[260px]" : "w-[260px]"}`}
       >
@@ -338,6 +338,7 @@ export default function Sidebar({ activeView, onViewChange, threatLevel = "ELEVA
       {/* Collapse Toggle (Desktop Only) */}
       <button
         onClick={() => setCollapsed(!collapsed)}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         className="hidden md:flex absolute -right-3 top-20 z-10 h-6 w-6 items-center justify-center rounded-full border border-border bg-[var(--sidebar-bg)] text-muted-foreground transition-colors hover:bg-slate-800 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background"
       >
         {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}

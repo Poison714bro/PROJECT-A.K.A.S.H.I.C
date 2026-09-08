@@ -80,8 +80,12 @@ export default function IntelligenceDossier() {
   const riskScore = dossier?.threatScore || 0;
   const category = dossier?.entity?.category || "Unknown";
   const source = "Intel System"; // Real backend doesn't explicitly return source, fallback
-  const firstDetected = dossier?.timeline?.[0]?.timestamp || "Unknown";
-  const lastActive = dossier?.timeline?.[dossier?.timeline?.length - 1]?.timestamp || "Unknown";
+  const firstDetected = dossier?.timeline?.[0]?.timestamp 
+    || dossier?.timeline?.[0]?.date 
+    || (dossier?.entity?.firstSeen ? new Date(dossier.entity.firstSeen).toLocaleDateString() : "Unknown");
+  const lastActive = dossier?.timeline?.[dossier?.timeline?.length - 1]?.timestamp 
+    || dossier?.timeline?.[dossier?.timeline?.length - 1]?.date 
+    || (dossier?.entity?.lastActive ? new Date(dossier.entity.lastActive).toLocaleDateString() : "Unknown");
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}

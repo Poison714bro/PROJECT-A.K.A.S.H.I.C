@@ -59,25 +59,26 @@ export default function ReportInvestigations() {
         <button onClick={() => setActiveView("dashboard")} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors mb-3 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Operations Dashboard
         </button>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-white flex items-center gap-2">
               <Eye className="h-5 w-5 text-primary" /> Active Investigations
             </h1>
             <p className="text-xs text-muted-foreground mt-1">Case management data table • {investigationsData.length} total cases</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search cases..."
+                aria-label="Search cases"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 bg-background border border-border rounded-lg py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-primary transition-colors"
+                className="w-56 md:w-64 bg-background border border-border rounded-lg py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-primary transition-colors"
               />
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               <Filter className="h-3.5 w-3.5 text-muted-foreground" />
               {["All", "Open", "Preparing Brief", "Arrest Warrant", "Closed"].map((s) => (
                 <button key={s} onClick={() => setStatusFilter(s)} className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-md border transition-all ${statusFilter === s ? "border-primary/50 bg-cyan-500/10 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>
@@ -91,7 +92,8 @@ export default function ReportInvestigations() {
 
       {/* Table */}
       <div className="flex-1 overflow-auto">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px]">
           <thead className="sticky top-0 z-10 bg-card border-b border-border">
             <tr className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               <th className="px-6 py-3 text-left">Case ID</th>
@@ -121,6 +123,7 @@ export default function ReportInvestigations() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

@@ -32,8 +32,11 @@ export async function GET() {
     // Drug distribution (already working — unchanged)
     const distributionMap: Record<string, number> = {};
     mapIncidents.forEach(inc => {
-      const mainCategory = inc.drugCategory.split(' - ')[0] || inc.drugCategory;
-      distributionMap[mainCategory] = (distributionMap[mainCategory] || 0) + 1;
+      if (!inc.drugCategory) return;
+      const mainCategory = (String(inc.drugCategory).split(' - ')[0] || inc.drugCategory).trim();
+      if (mainCategory) {
+        distributionMap[mainCategory] = (distributionMap[mainCategory] || 0) + 1;
+      }
     });
     const colors = ["#ef4444", "#3b82f6", "#22c55e", "#a855f7", "#eab308"];
     const drugDistribution = Object.keys(distributionMap).map((key, i) => ({

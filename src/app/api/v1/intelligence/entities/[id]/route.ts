@@ -62,8 +62,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
           colorHex: entity.colorHex,
           riskScore: entity.riskScore,
           status: entity.status,
-          firstSeen: entity.firstSeen.toISOString(),
-          lastActive: entity.lastActive.toISOString(),
+          firstSeen: entity.firstSeen ? new Date(entity.firstSeen).toISOString() : new Date().toISOString(),
+          lastActive: entity.lastActive ? new Date(entity.lastActive).toISOString() : new Date().toISOString(),
           sources: ["Darknet", "OSINT"],
           identifiers: {
             cryptoWallets: entity.cryptoWallets,

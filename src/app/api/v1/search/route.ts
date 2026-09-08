@@ -10,7 +10,9 @@ export async function GET(request: Request) {
     const results = [];
 
     for (const entity of entities) {
-      if (entity.primaryAlias.toLowerCase().includes(q) || entity.summary.toLowerCase().includes(q)) {
+      const alias = (entity.primaryAlias || "").toLowerCase();
+      const summary = (entity.summary || "").toLowerCase();
+      if (alias.includes(q) || summary.includes(q)) {
         results.push({
           id: entity.id,
           label: entity.primaryAlias,

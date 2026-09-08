@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { execFile } from 'child_process';
+import { execFile, spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { promisify } from 'util';
@@ -20,29 +20,29 @@ export async function POST(request: Request) {
     const posixPython = path.join(process.cwd(), 'darknet-intel-mcp', 'venv', 'bin', 'python');
     const pythonBin = fs.existsSync(winPython) ? winPython : fs.existsSync(posixPython) ? posixPython : 'python';
 
-    // Temporary inline python invocation for custom text
-    const inlineCode = `
-import sys, json
-from ingestion.akashic_pipeline import SemanticaIngestionPipeline
-
-pipeline = SemanticaIngestionPipeline()
-text = ${JSON.stringify(text)}
-source = ${JSON.stringify(source || 'API Ingestion')}
-result = pipeline.ingest_raw_feed_text(text, source_name=source)
-print(json.dumps({"success": True, "data": result}))
-`;
-
     try {
-      const { stdout } = await execFileAsync(pythonBin, ['-c', inlineCode], {
-        timeout: 10000,
-        env: { ...process.env, PYTHONPATH: `${process.cwd()};${path.join(process.cwd(), '..', 'semantica')}` }
+      const pythonProcess = spawn(pythonBin, [pythonScript, '--stdin'], {
+        env: { ...process.env, PYTHONPATH: [process.cwd(), path.join(process.cwd(), '..', 'semantica')].join(path.delimiter) }
       });
 
-      const jsonStart = stdout.indexOf('{');
-      const jsonEnd = stdout.lastIndexOf('}');
-      if (jsonStart !== -1 && jsonEnd !== -1) {
-        const jsonStr = stdout.slice(jsonStart, jsonEnd + 1);
-        return NextResponse.json(JSON.parse(jsonStr));
+      const stdoutChunks: Buffer[] = [];
+      pythonProcess.stdout.on('data', (chunk) => stdoutChunks.push(Buffer.from(chunk)));
+
+      const exitCode = await new Promise<number>((resolve) => {
+        pythonProcess.on('close', resolve);
+        pythonProcess.on('error', () => resolve(1));
+        pythonProcess.stdin.write(JSON.stringify({ text, source: source || 'API Ingestion' }));
+        pythonProcess.stdin.end();
+      });
+
+      if (exitCode === 0) {
+        const stdout = Buffer.concat(stdoutChunks).toString('utf-8');
+        const jsonStart = stdout.indexOf('{');
+        const jsonEnd = stdout.lastIndexOf('}');
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          const jsonStr = stdout.slice(jsonStart, jsonEnd + 1);
+          return NextResponse.json(JSON.parse(jsonStr));
+        }
       }
     } catch (execErr) {
       console.warn("Python ingestion execution notice:", execErr);

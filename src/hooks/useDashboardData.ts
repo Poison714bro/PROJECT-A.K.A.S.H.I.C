@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { api, type KpiData, type FeedItem, type ChartData } from "@/lib/apiClient";
-import { getRecentMalwareUrls, getDnsRecords } from "@/lib/publicApis";
 
 export function useDashboardData() {
   const [loading, setLoading] = useState(true);
@@ -15,7 +14,7 @@ export function useDashboardData() {
       setLoading(true);
       
       try {
-        const [kpiRes, feedRes, chartRes, alertRes, malwareUrls, dnsInfo] = await Promise.all([
+        const [kpiRes, feedRes, chartRes, alertRes] = await Promise.all([
           api.dashboard.kpis().catch(e => {
             console.error("KPI Fetch Error:", e);
             return { ok: false, data: null };
@@ -32,8 +31,6 @@ export function useDashboardData() {
             console.error("Alerts Fetch Error:", e);
             return { ok: false, data: null };
           }),
-          getRecentMalwareUrls().catch(() => []),
-          getDnsRecords('google.com').catch(() => null)
         ]);
 
         if (cancelled) return;
@@ -57,24 +54,12 @@ export function useDashboardData() {
         if (feedRes.ok && feedRes.data) {
           setFeed(feedRes.data);
         } else {
-          let dynamicFeed: FeedItem[] = [
+          const dynamicFeed: FeedItem[] = [
             { id: "1", timestamp: new Date().toISOString(), source: "Darknet", category: "Opioids/Fentanyl", severity: "high" as const, summary: "New fentanyl vendor detected on Alphabay", rawSnippet: "" },
             { id: "2", timestamp: new Date().toISOString(), source: "Blockchain", category: "Money Laundering", severity: "critical" as const, summary: "Large BTC movement to known tumbler", rawSnippet: "" },
             { id: "3", timestamp: new Date().toISOString(), source: "Encrypted", category: "Stimulants", severity: "medium" as const, summary: "Chatter on Telegram regarding bulk meth shipment", rawSnippet: "" },
             { id: "4", timestamp: new Date().toISOString(), source: "OSINT", category: "Cannabis", severity: "low" as const, summary: "Social media post hinting at new grow operation", rawSnippet: "" },
           ];
-
-          if (dnsInfo) {
-             dynamicFeed.unshift({
-               id: "dns-1",
-               timestamp: new Date().toISOString(),
-               source: "NetworkCalc",
-               category: "Network Intelligence",
-               severity: "low" as const,
-               summary: `DNS resolution successful for google.com: ${dnsInfo.A?.length || 0} A records found.`,
-               rawSnippet: ""
-             });
-          }
           setFeed(dynamicFeed);
         }
 
@@ -98,24 +83,10 @@ export function useDashboardData() {
         if (alertRes.ok && alertRes.data) {
           setAlerts(alertRes.data);
         } else {
-          let dynamicAlerts = [
-            { id: "a1", severity: "critical", title: "Cartel Activity", description: "Suspected Sinaloa cartel movement.", payload: "", timestamp: new Date().toISOString(), source: "Signal", acknowledged: false },
-            { id: "a2", severity: "high", title: "Tumbler detected", description: "Tornado Cash deposit detected.", payload: "", timestamp: new Date().toISOString(), source: "Blockchain", acknowledged: false },
+          const dynamicAlerts = [
+            { id: "a1", severity: "critical" as const, title: "Cartel Activity", description: "Suspected Sinaloa cartel movement.", payload: "", timestamp: new Date().toISOString(), source: "Signal", acknowledged: false },
+            { id: "a2", severity: "high" as const, title: "Tumbler detected", description: "Tornado Cash deposit detected.", payload: "", timestamp: new Date().toISOString(), source: "Blockchain", acknowledged: false },
           ];
-
-          if (malwareUrls && malwareUrls.length > 0) {
-             const threatAlerts = malwareUrls.slice(0, 3).map((u: any, idx: number) => ({
-                id: `malware-${idx}`,
-                severity: "high",
-                title: "Malware Distribution URL",
-                description: `Threat tag: ${u.tags?.join(", ") || "malware"} - ${u.url}`,
-                payload: u.url,
-                timestamp: u.date_added ? new Date(u.date_added).toISOString() : new Date().toISOString(),
-                source: "URLhaus (OSINT)",
-                acknowledged: false
-             }));
-             dynamicAlerts = [...threatAlerts, ...dynamicAlerts];
-          }
           setAlerts(dynamicAlerts);
         }
       } catch (err) {

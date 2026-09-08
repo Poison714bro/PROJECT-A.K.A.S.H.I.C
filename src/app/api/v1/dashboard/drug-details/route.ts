@@ -21,10 +21,13 @@ export async function GET(request: Request) {
     const subCategoryMap: Record<string, number> = {};
     
     mapIncidents.forEach(inc => {
+      if (!inc.drugCategory) return;
       // The granular name is the full string or everything after the first " - "
-      const parts = inc.drugCategory.split(' - ');
-      const subName = parts.length > 1 ? parts.slice(1).join(' - ') : parts[0];
-      subCategoryMap[subName] = (subCategoryMap[subName] || 0) + 1;
+      const parts = String(inc.drugCategory).split(' - ');
+      const subName = parts.length > 1 ? parts.slice(1).join(' - ').trim() : parts[0].trim();
+      if (subName) {
+        subCategoryMap[subName] = (subCategoryMap[subName] || 0) + 1;
+      }
     });
 
     const data = Object.keys(subCategoryMap).map(key => ({

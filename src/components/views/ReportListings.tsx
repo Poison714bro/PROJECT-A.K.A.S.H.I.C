@@ -67,18 +67,24 @@ export default function ReportListings() {
         <button onClick={() => setActiveView("dashboard")} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors mb-3 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Operations Dashboard
         </button>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-white flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-red-400" /> Suspicious Listings Feed
             </h1>
             <p className="text-xs text-muted-foreground mt-1">Darknet marketplace scraper • {listingsData.length} flagged listings</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <input type="text" placeholder="Search vendors, listings..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 bg-background border border-border rounded-lg py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-red-500 transition-colors" />
+              <input
+                type="text"
+                placeholder="Search vendors, listings..."
+                aria-label="Search vendors or listings"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-56 md:w-64 bg-background border border-border rounded-lg py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-red-500 transition-colors"
+              />
             </div>
             <button className="flex items-center gap-1.5 rounded-lg border border-border bg-zinc-900/50 px-3 py-2 text-xs text-muted-foreground hover:bg-zinc-800 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
               <Download className="h-3.5 w-3.5" /> Export CSV
@@ -92,49 +98,44 @@ export default function ReportListings() {
 
       {/* Table */}
       <div className="flex-1 overflow-auto">
-        <table className="w-full">
-          <thead className="sticky top-0 z-10 bg-card border-b border-border">
-            <tr className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
-              <th className="px-4 py-3 text-center w-10"></th>
-              <th className="px-4 py-3 text-left">Vendor</th>
-              <th className="px-4 py-3 text-left">Listing Title</th>
-              <th className="px-4 py-3 text-right">USD</th>
-              <th className="px-4 py-3 text-right">BTC</th>
-              <th className="px-4 py-3 text-center">Platform</th>
-              <th className="px-4 py-3 text-left">AI Suspicion Flag</th>
-              <th className="px-4 py-3 text-right">Scraped</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((l) => (
-              <tr key={l.id} className="border-b border-border/50 transition-colors hover:bg-slate-800/30 group focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background">
-                <td className="px-4 py-3 text-center">
-                  <button onClick={() => toggleSelect(l.id)} className={`h-4 w-4 rounded border transition-colors ${selected.has(l.id) ? "bg-red-500 border-red-500" : "border-zinc-700 hover:border-red-500/50"}`}>
-                    {selected.has(l.id) && <CheckSquare className="h-4 w-4 text-white" />}
-                  </button>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="font-mono text-xs font-bold text-white">{l.vendor}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-8 rounded-full shrink-0" style={{ backgroundColor: CATEGORY_COLORS[l.category] || "#666" }} />
-                    <span className="text-xs text-foreground line-clamp-1">{l.title}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-right font-mono text-xs text-emerald-400">${l.priceUSD.toLocaleString()}</td>
-                <td className="px-4 py-3 text-right font-mono text-xs text-orange-400">₿{l.priceBTC}</td>
-                <td className="px-4 py-3 text-center">
-                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">{l.platform}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20 line-clamp-1">{l.flag}</span>
-                </td>
-                <td className="px-4 py-3 text-right text-[11px] text-muted-foreground">{l.scraped}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px]">
+            <thead className="sticky top-0 z-10 bg-card border-b border-border">
+              <tr className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                <th className="px-4 py-3 text-center w-10"></th>
+                <th className="px-4 py-3 text-left">Vendor</th>
+                <th className="px-4 py-3 text-left">Listing Title</th>
+                <th className="px-4 py-3 text-right">USD</th>
+                <th className="px-4 py-3 text-right">BTC</th>
+                <th className="px-4 py-3 text-center">Platform</th>
+                <th className="px-4 py-3 text-left">AI Suspicion Flag</th>
+                <th className="px-4 py-3 text-right">Scraped</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((l) => (
+                <tr key={l.id} className="border-b border-border/40 hover:bg-zinc-900/30 transition-colors">
+                  <td className="px-4 py-3 text-center">
+                    <input type="checkbox" checked={selected.has(l.id)} onChange={() => toggleSelect(l.id)}
+                      aria-label={`Select listing ${l.id}`}
+                      className="rounded border-border accent-red-500 cursor-pointer" />
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs font-bold text-white">{l.vendor}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">{l.title}</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-emerald-400">${l.priceUSD.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs text-orange-400">₿{l.priceBTC}</td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">{l.platform}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20 line-clamp-1">{l.flag}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right text-[11px] text-muted-foreground">{l.scraped}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
