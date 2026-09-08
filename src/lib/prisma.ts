@@ -87,9 +87,9 @@ export const prisma = basePrisma.$extends({
     $allModels: {
       async $allOperations({ model, operation, args, query }) {
         // 1. Intercept Where clause for exact match queries
-        if (args.where) {
-          args.where = processWhere(model, args.where);
-        }
+        if ((args as any).where) {
+  (args as any).where = processWhere(model, (args as any).where);
+}
 
         // 2. Intercept Data writes
         if (args.data) {
