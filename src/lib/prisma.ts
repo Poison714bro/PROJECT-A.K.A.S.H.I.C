@@ -85,38 +85,41 @@ const basePrisma = new PrismaClient({ log: ['query'] });
 export const prisma = basePrisma.$extends({
   query: {
     $allModels: {
-      async $allOperations({ model, operation, args, query }) {
-        // 1. Intercept Where clause for exact match queries
-        if ((args as any).where) {
-  (args as any).where = processWhere(model, (args as any).where);
-}
+              async $allOperations({ model, operation, args, query }) {
+            const a = args as any;
 
-        // 2. Intercept Data writes
-        if (args.data) {
-          if (Array.isArray(args.data)) {
-            args.data = args.data.map(d => encryptData(model, d));
-          } else {
-            args.data = encryptData(model, args.data);
-          }
-        }
-        
-        if ((args as any).update) {
-          (args as any).update = encryptData(model, (args as any).update);
-        }
-        if ((args as any).create) {
-          (args as any).create = encryptData(model, (args as any).create);
-        }
+            // 1. Intercept Where clause for exact match queries
+            if (a.where) {
+              a.where = processWhere(model, a.where);
+            }
 
-        // 3. Execute query
-        const result = await query(args);
+            // 2. Intercept Data writes
+            if (a.data) {
+              if (Array.isArray(a.data)) {
+                a.data = a.data.map((d: any) => encryptData(model, d));
+              } else {
+                a.data = encryptData(model, a.data);
+              }
+            }
 
-        // 4. Decrypt results
-        if (result) {
-          if (Array.isArray(result)) {
-            return result.map(r => decryptData(model, r));
-          } else {
-            return decryptData(model, result);
-          }
+            if (a.update) {
+              a.update = encryptData(model, a.update);
+            }
+            if (a.create) {
+              a.create = encryptData(model, a.create);
+            }
+
+            // 3. Execute query
+            const result = await query(args);
+
+            // 4. Decrypt results
+            if (result) {
+              if (Array.isArray(result)) {
+                return result.map(r => decryptData(model, r));
+              } else {
+                return decryptData(model, result);
+              }
+            }
         }
         
         return result;
