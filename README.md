@@ -1,4 +1,4 @@
-# 🌌 PROJECT A.K.A.S.H.I.C. (आकाशिक) — AI-Powered Darknet Cybercrime & Forensic Intelligence Platform
+# 🌌 PROJECT A.K.A.S.H.I.C. — AI-Powered Darknet Cybercrime & Forensic Intelligence Platform
 
 > **A.K.A.S.H.I.C. (Autonomous Knowledge-base for Anti-narcotics, Syndicate Hotspots & Inter-agency Cyber-forensics)**  
 > *Deterministic Context Graph Engine, Cross-Source Entity Resolution, GPU Geospatial Supply Chain Corridors, and Tamper-Evident Forensic Dossier Automation.*  
