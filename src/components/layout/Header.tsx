@@ -346,7 +346,7 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
         <div className="hidden sm:flex items-center rounded border border-[rgba(0,229,255,0.25)] bg-[#111C24] px-2.5 py-1 text-[10px] font-mono text-[#00E5FF] shadow-[0_0_10px_rgba(0,229,255,0.12)]">
           <span className="text-[#6B9DA8] font-bold">[</span>
           <span className="tracking-widest font-bold mx-1">
-            CLEARANCE L{currentUser?.clearanceLevel || 1} // {currentUser?.role?.toUpperCase() || "ANALYST"}
+              CLEARANCE L{currentUser?.clearanceLevel || 1} {"//"} {currentUser?.role?.toUpperCase() || "ANALYST"}
           </span>
           <span className="text-[#6B9DA8] font-bold">]</span>
         </div>
