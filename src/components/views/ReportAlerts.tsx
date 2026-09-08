@@ -64,9 +64,9 @@ export default function ReportAlerts() {
       </div>
 
       {/* Split Pane */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left: Alert List */}
-        <div className="w-[420px] border-r border-border overflow-y-auto shrink-0">
+        <div className="w-full md:w-[420px] max-h-[260px] md:max-h-none border-b md:border-b-0 md:border-r border-border overflow-y-auto shrink-0">
           {alerts.map((alert) => {
             const sev = SEV_COLORS[alert.severity];
             const isSelected = selectedAlert?.id === alert.id;

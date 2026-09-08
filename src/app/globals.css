@@ -338,8 +338,13 @@ body {
 
 /* Z-Index Standardization Layer */
 .z-map { z-index: 10; }
+.z-controls { z-index: 20; }
+.z-subnav { z-index: 30; }
 .z-sidebar { z-index: 40; }
-.z-header { z-index: 40; }
-.z-drawer { z-index: 50; }
-.z-modal { z-index: 60; }
-.z-dropdown { z-index: 70; }
+.z-header { z-index: 50; }
+.z-dropdown { z-index: 60; }
+.z-drawer { z-index: 70; }
+.z-backdrop { z-index: 75; }
+.z-modal { z-index: 80; }
+.z-toast { z-index: 90; }
+.z-overlay { z-index: 100; }

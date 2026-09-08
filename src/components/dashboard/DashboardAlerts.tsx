@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ShieldAlert, Clock } from "lucide-react";
 import { getTimeAgo } from "@/lib/utils";
+import { useAppStore } from "@/lib/store";
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -8,6 +9,7 @@ const itemVariants = {
 };
 
 export function DashboardAlerts({ alertsData }: { alertsData: any[] }) {
+  const setActiveView = useAppStore((s) => s.setActiveView);
   return (
     <motion.div variants={itemVariants} className="glass-card flex flex-col overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-6 py-3">
@@ -36,7 +38,11 @@ export function DashboardAlerts({ alertsData }: { alertsData: any[] }) {
           return (
             <div
               key={alert.id}
-              className={`cursor-pointer border-b border-l-2 border-b-[var(--border)] px-4 py-3 transition-colors hover:bg-slate-800/20 ${
+              onClick={() => setActiveView("report-alerts")}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActiveView("report-alerts"); } }}
+              className={`cursor-pointer border-b border-l-2 border-b-[var(--border)] px-4 py-3 transition-colors hover:bg-slate-800/20 focus:outline-none focus:bg-slate-800/40 ${
                 severityColors[alert.severity]
               } ${!alert.acknowledged ? "" : "opacity-60"}`}
             >

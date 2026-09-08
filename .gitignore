@@ -1,5 +1,6 @@
 # dependencies
 /node_modules
+**/node_modules/
 /.pnp
 .pnp.js
 
@@ -10,12 +11,16 @@
 /.next/
 /out/
 
-# production
+# production & build output
 /build
+dist/
+**/dist/
 
 # misc
 .DS_Store
 *.pem
+data_dumps/
+test_dumps/
 
 # debug
 npm-debug.log*
@@ -29,5 +34,20 @@ next-env.d.ts
 
 # agents & secrets
 .agents/
-.env 
-.env 
+
+# python & virtual environments
+venv/
+.venv/
+*/venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3

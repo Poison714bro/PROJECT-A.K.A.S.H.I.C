@@ -48,7 +48,7 @@ export default function ReportFinancial() {
         {/* Sankey-Style Flow Visualization */}
         <div className="px-6 py-6">
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">Fund Flow Pipeline</h2>
-          <div className="grid grid-cols-3 gap-0 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-0 relative">
             {sankeyStages.map((stage, i) => (
               <div key={stage.label} className="relative">
                 <div className="bg-card border border-border rounded-lg p-4 relative z-10">
@@ -65,7 +65,7 @@ export default function ReportFinancial() {
                 </div>
                 {/* Arrow connector */}
                 {i < sankeyStages.length - 1 && (
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20">
+                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20">
                     <div className="bg-background border border-border rounded-full p-1.5">
                       <ArrowRight className="h-4 w-4 text-slate-600" />
                     </div>
@@ -79,8 +79,8 @@ export default function ReportFinancial() {
         {/* Transaction Ledger */}
         <div className="px-6 pb-6">
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">Transaction Ledger</h2>
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <table className="w-full">
+          <div className="bg-card border border-border rounded-lg overflow-x-auto">
+            <table className="w-full min-w-[700px]">
               <thead className="sticky top-0 bg-card border-b border-border">
                 <tr className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   <th className="px-4 py-3 text-left">Date</th>

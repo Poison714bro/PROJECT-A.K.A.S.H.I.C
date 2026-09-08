@@ -31,21 +31,29 @@ export async function GET(request: Request, { params }: { params: { id: string }
       },
       threatScore: entity.riskScore,
       classification: entity.riskScore > 90 ? "Critical" : "High",
-      timeline: entity.feedEntries.map(f => ({
-        id: f.id,
-        date: f.timestamp.toISOString(),
-        event: f.category,
-        description: f.details,
-        source: f.source
-      })),
-      geospatialActivity: entity.mapIncidents.map(m => ({
-        location: m.label,
-        type: m.drugCategory,
-        date: m.date.toISOString()
-      })),
+      timeline: (entity.feedEntries || []).map(f => {
+        const iso = f.timestamp ? new Date(f.timestamp).toISOString() : new Date().toISOString();
+        return {
+          id: f.id,
+          date: iso,
+          timestamp: iso,
+          event: f.category || "Intelligence Log",
+          description: f.details || "",
+          source: f.source || "Intel Feed"
+        };
+      }),
+      geospatialActivity: (entity.mapIncidents || []).map(m => {
+        const iso = m.date ? new Date(m.date).toISOString() : new Date().toISOString();
+        return {
+          location: m.label || "Unknown Coordinate",
+          type: m.drugCategory || "General",
+          date: iso,
+          timestamp: iso
+        };
+      }),
       activeInvestigations: [],
       legalChainOfCustody: {
-        sha256DossierHash: "a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3", // Mocked
+        sha256DossierHash: "a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3",
         lastAccessed: new Date().toISOString(),
         authorizedJurisdiction: "Global"
       }

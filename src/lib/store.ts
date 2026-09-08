@@ -89,14 +89,14 @@ const ALL_SUSPECT_ROLES = new Set(["buyer", "dealer", "supplier", "courier"]);
 const ALL_CONTACT_METHODS = new Set(["encrypted", "in-person", "phone", "darknet"]);
 const ALL_SOURCE_STREAMS = new Set(["Darknet", "Blockchain", "Encrypted", "OSINT"]);
 
-const defaultFilters: FilterState = {
+export const createDefaultFilters = (): FilterState => ({
   drugCategories: new Set(ALL_DRUG_CATEGORIES),
   sourceStreams: new Set(ALL_SOURCE_STREAMS),
   dateRange: ["2026-08-01", "2026-08-17"],
   riskRange: [0, 100],
   suspectRoles: new Set(ALL_SUSPECT_ROLES),
   contactMethods: new Set(ALL_CONTACT_METHODS),
-};
+});
 
 export const useAppStore = create<AppState>((set, get) => {
   // Wire up the token accessor so apiClient can read the JWT without
@@ -119,7 +119,7 @@ export const useAppStore = create<AppState>((set, get) => {
     topologyCache: null,
     investigationsCache: null,
     
-    filters: { ...defaultFilters },
+    filters: createDefaultFilters(),
 
     login: (user, token) => set({ isAuthenticated: true, currentUser: user, token }),
     logout: () => set({ isAuthenticated: false, currentUser: null, token: null, activeView: "dashboard" }),
@@ -212,7 +212,7 @@ export const useAppStore = create<AppState>((set, get) => {
     setTopologyCache: (data) => set({ topologyCache: data }),
     setInvestigationsCache: (data) => set({ investigationsCache: data }),
 
-    resetFilters: () => set({ filters: { ...defaultFilters } }),
+    resetFilters: () => set({ filters: createDefaultFilters() }),
   };
 });
 

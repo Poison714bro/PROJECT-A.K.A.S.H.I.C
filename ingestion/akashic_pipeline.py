@@ -233,6 +233,17 @@ class SemanticaIngestionPipeline:
 
 if __name__ == "__main__":
     pipeline = SemanticaIngestionPipeline()
-    test_sample = "AlphaBay vendor ToxicViper posted bulk 1000x pressed pills. Contact on Telegram @ToxicViper_Direct. Payment to bc1qa93784hkjsdf98234jksdf89234. PGP: A8B3C4D5E6F70123456789ABCDEF0123456789AB"
-    out = pipeline.ingest_raw_feed_text(test_sample, source_name="Sample AlphaBay Scrape")
-    print(json.dumps(out, indent=2))
+    if len(sys.argv) > 1 and sys.argv[1] == "--stdin":
+        try:
+            input_data = sys.stdin.read()
+            payload = json.loads(input_data) if input_data.strip() else {}
+            raw_text = payload.get("text", "")
+            src = payload.get("source", "API Ingestion")
+            out = pipeline.ingest_raw_feed_text(raw_text, source_name=src)
+            print(json.dumps({"success": True, "data": out}))
+        except Exception as e:
+            print(json.dumps({"success": False, "error": str(e)}))
+    else:
+        test_sample = "AlphaBay vendor ToxicViper posted bulk 1000x pressed pills. Contact on Telegram @ToxicViper_Direct. Payment to bc1qa93784hkjsdf98234jksdf89234. PGP: A8B3C4D5E6F70123456789ABCDEF0123456789AB"
+        out = pipeline.ingest_raw_feed_text(test_sample, source_name="Sample AlphaBay Scrape")
+        print(json.dumps(out, indent=2))

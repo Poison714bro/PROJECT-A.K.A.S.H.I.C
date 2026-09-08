@@ -11,15 +11,17 @@ export async function GET() {
   try {
     const pythonScript = path.join(process.cwd(), 'analysis', 'akashic_graph_service.py');
     
-    // Resolve python executable
-    const py313 = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python313', 'python.exe');
-    const winPython = path.join(process.cwd(), 'darknet-intel-mcp', 'venv', 'Scripts', 'python.exe');
-    const posixPython = path.join(process.cwd(), 'darknet-intel-mcp', 'venv', 'bin', 'python');
-    const pythonBin = fs.existsSync(py313) ? py313 : fs.existsSync(winPython) ? winPython : fs.existsSync(posixPython) ? posixPython : 'python';
+    // Resolve python executable in a cross-platform manner
+    const winVenv = path.join(process.cwd(), 'darknet-intel-mcp', 'venv', 'Scripts', 'python.exe');
+    const posixVenv = path.join(process.cwd(), 'darknet-intel-mcp', 'venv', 'bin', 'python');
+    const pythonBin = process.env.PYTHON_BIN 
+      || (fs.existsSync(winVenv) ? winVenv : fs.existsSync(posixVenv) ? posixVenv : 'python');
+
+    const pythonPath = [process.cwd(), path.join(process.cwd(), '..', 'semantica')].join(path.delimiter);
 
     const { stdout } = await execFileAsync(pythonBin, [pythonScript], {
       timeout: 10000,
-      env: { ...process.env, PYTHONPATH: `${process.cwd()};${path.join(process.cwd(), '..', 'semantica')}` }
+      env: { ...process.env, PYTHONPATH: pythonPath }
     });
 
     // Extract JSON payload from stdout
